@@ -65,6 +65,7 @@
       <div class="fill" id="fill" aria-hidden="true" style="width:50%"></div>
       <div class="thumb" id="thumb" style="left:50%"></div>
     </div>
+    <input type="range" id="range" min="0" max="100" value="50" aria-label="Attribution position (read-only)" style="width:100%; margin:8px 0 0 0; pointer-events:none;"/>
     <div id="debug" class="tiny" style="display:none;margin-top:6px"></div>
 
   </div>
@@ -203,6 +204,28 @@
         if(scoreOut) scoreOut.textContent = Math.round(s);
         if(thumb) thumb.style.left = s+"%";
         if(fill) fill.style.width = s+"%";
+        const range = document.getElementById('range');
+        if(range){ range.value = s; }
+
+        if(debug && new URLSearchParams(location.search).get('debug')==='1'){
+          debug.style.display='block';
+          debug.textContent = `values: ${JSON.stringify(snapshot)} | avg=${s.toFixed(1)}`;
+          if(window.console) console.log('Attribution update', {snapshot, s});
+        }
+
+        if(pushHash){
+          const params = new URLSearchParams();
+          for(const g of groups){
+            const v = getVal(g.name);
+            if(v!=null) params.set(g.name, String(v));
+          }
+          history.replaceState(null,'','#'+params.toString());
+        }
+      } = computeAverage();
+        const s = Math.max(0,Math.min(100,avg));
+        if(scoreOut) scoreOut.textContent = Math.round(s);
+        if(thumb) thumb.style.left = s+"%";
+        if(fill) fill.style.width = s+"%";
 
         // Debug (optional)
         if(debug && new URLSearchParams(location.search).get('debug')==='1'){
@@ -287,7 +310,8 @@ ${rows.map((r,i)=>`<tr><td>${i+1}</td><td>${r.title}</td><td>${r.label}</td><td>
           await navigator.clipboard.writeText(location.href);
           const t = event.target; const old = t.textContent; t.textContent = 'Link copied!';
           setTimeout(()=> t.textContent = old, 1500);
-        }catch(e){ alert('Could not copy. Manually copy this URL:\n'+location.href); }
+        }catch(e){ alert('Could not copy. Manually copy this URL:
+'+location.href); }
       });
 
       document.getElementById('resetBtn')?.addEventListener('click', ()=>{
