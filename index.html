@@ -157,109 +157,90 @@
   </div>
 
   <script>
-    const scoreOut = document.getElementById('scoreOut');
-    const thumb = document.getElementById('thumb');
-    const fill = document.getElementById('fill');
+    // Ensure DOM is ready before wiring events
+    document.addEventListener('DOMContentLoaded', () => {
+      const scoreOut = document.getElementById('scoreOut');
+      const thumb = document.getElementById('thumb');
+      const fill = document.getElementById('fill');
 
-    // Add weights for each group (integers recommended)
-    const groups = [
-      {name:'q1', weight: 1}, // literature review
-      {name:'q2', weight: 1}, // language
-      {name:'q3', weight: 2}, // data evaluation (heavier)
-      {name:'q4', weight: 1}, // idea generation
-      {name:'q5', weight: 2}, // code/stats drafting (heavier)
-      {name:'q6', weight: 1}  // citation management
-    ];
+      // Group config with weights
+      const groups = [
+        {name:'q1', weight: 1}, // literature review
+        {name:'q2', weight: 1}, // language
+        {name:'q3', weight: 2}, // data evaluation (heavier)
+        {name:'q4', weight: 1}, // idea generation
+        {name:'q5', weight: 2}, // code/stats drafting (heavier)
+        {name:'q6', weight: 1}  // citation management
+      ];
 
-    function getVal(name){
-      const sel = document.querySelector(`input[name="${name}"]:checked`);
-      return sel ? Number(sel.value) : null; // unanswered -> null
-    }"]:checked`);
-      return sel ? Number(sel.value) : null; // unanswered -> null
-    }
-
-    function computeAverage(){
-      let sum=0, wsum=0;
-      for(const g of groups){
-        const v = getVal(g.name);
-        if(v==null) continue;
-        sum += v * (g.weight||1);
-        wsum += (g.weight||1);
+      function getVal(name){
+        const sel = document.querySelector(`input[name="${name}"]:checked`);
+        return sel ? Number(sel.value) : null;
       }
-      if(wsum===0) return 50;
-      return sum / wsum;
-    }
-      if(n===0) return 50; // neutral when nothing selected
-      return sum / n; // simple average across answered items
-    }
 
-    function update(pushHash=false){
-      const s = Math.max(0,Math.min(100,computeAverage()));
-      scoreOut.textContent = Math.round(s);
-      thumb.style.left = s+"%";
-      fill.style.width = s+"%";
-      if(pushHash){
-        const params = new URLSearchParams();
+      function computeAverage(){
+        let sum=0, wsum=0;
         for(const g of groups){
           const v = getVal(g.name);
-          if(v!=null) params.set(g.name, String(v));
+          if(v==null) continue;
+          sum += v * (g.weight||1);
+          wsum += (g.weight||1);
         }
-        history.replaceState(null,'','#'+params.toString());
+        if(wsum===0) return 50;
+        return sum / wsum;
       }
-    }
-        history.replaceState(null,'','#'+params.toString());
+
+      function update(pushHash=false){
+        const s = Math.max(0,Math.min(100,computeAverage()));
+        scoreOut.textContent = Math.round(s);
+        thumb.style.left = s+"%";
+        fill.style.width = s+"%";
+        if(pushHash){
+          const params = new URLSearchParams();
+          for(const g of groups){
+            const v = getVal(g.name);
+            if(v!=null) params.set(g.name, String(v));
+          }
+          history.replaceState(null,'','#'+params.toString());
+        }
       }
-    }
 
-    function attach(){
-      groups.forEach(g=>{
-        document.querySelectorAll(`input[name="${g.name}"]`).forEach(i=>{
-          i.addEventListener('change', ()=> update(true));
-        });
-      });
-    }"]`).forEach(i=>{
-          i.addEventListener('change', ()=> update(true));
-        });
-      });
-    }
-
-    function restoreFromHash(){
-      const params = new URLSearchParams(location.hash.replace(/^#/,''));
-      groups.forEach(g=>{
-        const v = params.get(g.name);
-        if(v!=null){
-          const el = document.querySelector(`input[name="${g.name}"][value="${v}"]`);
-          if(el) el.checked = true;
+      // Event delegation: listen for any change within the form area
+      document.getElementById('questionGrid').addEventListener('change', (e)=>{
+        if(e.target && e.target.matches('input[type="radio"]')){
+          update(true);
         }
       });
-      update(false);
-    }"][value="${v}"]`);
-          if(el) el.checked = true;
-        }
-      });
-      update(false);
-    }
 
-    document.getElementById('shareBtn').addEventListener('click', async (event)=>{
-      try{
-        await navigator.clipboard.writeText(location.href);
-        const t = event.target; const old = t.textContent; t.textContent = 'Link copied!';
-        setTimeout(()=> t.textContent = old, 1500);
-      }catch(e){
-        alert('Could not copy. Manually copy this URL:
+      // Restore from hash
+      (function restoreFromHash(){
+        const params = new URLSearchParams(location.hash.replace(/^#/,''));
+        groups.forEach(g=>{
+          const v = params.get(g.name);
+          if(v!=null){
+            const el = document.querySelector(`input[name="${g.name}"][value="${v}"]`);
+            if(el) el.checked = true;
+          }
+        });
+        update(false);
+      })();
+
+      document.getElementById('shareBtn').addEventListener('click', async (event)=>{
+        try{
+          await navigator.clipboard.writeText(location.href);
+          const t = event.target; const old = t.textContent; t.textContent = 'Link copied!';
+          setTimeout(()=> t.textContent = old, 1500);
+        }catch(e){
+          alert('Could not copy. Manually copy this URL:
 '+location.href);
-      }
-    });
-
-    document.getElementById('resetBtn').addEventListener('click', ()=>{
-      groups.forEach(g=>{
-        document.querySelectorAll(`input[name="${g}"]`).forEach(i=> i.checked=false);
+        }
       });
-      update(true);
-    });
 
-    attach();
-    restoreFromHash();
+      document.getElementById('resetBtn').addEventListener('click', ()=>{
+        document.querySelectorAll('input[type="radio"]').forEach(i=> i.checked=false);
+        update(true);
+      });
+    });
   </script>
 </body>
 </html>
