@@ -152,8 +152,9 @@
       </div>
     </section>
 
-    <div class="controls" style="margin-top:14px">" style="margin-top:14px">
+    <div class="controls" style="margin-top:14px">
       <button class="primary" id="shareBtn" title="Copy a shareable URL with your current state">Copy shareable link</button>
+      <button id="downloadBtn" title="Download a printable summary as PDF">Download summary (PDF)</button>
       <button id="resetBtn" title="Reset all inputs">Reset</button>
       <span class="tiny">Tip: Add this page’s link or QR code to your PDF for universal interactivity.</span>
     </div>
@@ -166,14 +167,18 @@
       const fill = document.getElementById('fill');
       const debug = document.getElementById('debug');
 
-      const groups = [
-        {name:'q1', weight: 1},
-        {name:'q2', weight: 1},
-        {name:'q3', weight: 2},
-        {name:'q4', weight: 1},
-        {name:'q5', weight: 2},
-        {name:'q6', weight: 1}
+      // Metadata for labels + weights
+      const questions = [
+        {name:'q1', weight:1, title:'AI assisted with literature review', options:{'100':'Yes, without revision','50':'Yes, with revision and validation','0':'No'}},
+        {name:'q2', weight:1, title:'Was AI used to develop language presented in the submission?', options:{'100':'Yes, without revision','50':'Yes, with revision and validation','0':'No'}},
+        {name:'q3', weight:2, title:'Was AI used in data evaluation?', options:{'100':'Yes, without revision','50':'Yes, with revision and validation','0':'No'}},
+        {name:'q4', weight:1, title:'Was AI used for idea generation (outlines, prompts, brainstorming)?', options:{'100':'Yes, without revision','50':'Yes, with revision and validation','0':'No'}},
+        {name:'q5', weight:2, title:'Was AI used for code/statistical drafting or analysis scripting?', options:{'100':'Yes, without revision','50':'Yes, with revision and validation','0':'No'}},
+        {name:'q6', weight:1, title:'Was AI used for citation management (discovering, formatting, or summarizing references)?', options:{'100':'Yes, without revision','50':'Yes, with revision and validation','0':'No'}}
       ];
+
+      // Keep a lean array for averaging logic
+      const groups = questions.map(q=>({name:q.name, weight:q.weight}));
 
       function getVal(name){
         const sel = document.querySelector(`input[name="${name}"]:checked`);
@@ -217,6 +222,70 @@
         }
       }
 
+      function getSnapshot(){
+        return questions.map(q=>{
+          const v = getVal(q.name);
+          const label = v==null ? '—' : (q.options[String(v)] || `Value ${v}`);
+          const contribution = (v==null) ? null : v*(q.weight||1);
+          return {name:q.name, title:q.title, value:v, label, weight:q.weight||1, contribution};
+        });
+      }
+
+      function downloadSummary(){
+        const left = document.getElementById('leftLabel')?.textContent || 'Human Generated';
+        const center = document.getElementById('centerLabel')?.textContent || 'Collaboration';
+        const right = document.getElementById('rightLabel')?.textContent || 'AI Generated';
+        const {avg} = computeAverage();
+        const s = Math.max(0,Math.min(100,avg));
+        const rows = getSnapshot();
+        const now = new Date();
+        const url = location.href;
+
+        const html = `<!doctype html>
+<html><head><meta charset="utf-8"><title>Human + AI Attribution Summary</title>
+<style>
+  body{font-family:Arial,Helvetica,sans-serif;margin:24px;color:#111}
+  h1{font-size:22px;margin:0 0 4px}
+  .meta{font-size:12px;color:#555;margin-bottom:12px}
+  .anchors{margin:6px 0 14px 0;font-weight:bold}
+  .score{font-size:18px;margin:10px 0 16px 0}
+  table{border-collapse:collapse;width:100%;font-size:13px}
+  th,td{border:1px solid #ddd;padding:8px;vertical-align:top}
+  th{background:#f4f6f8;text-align:left}
+  tfoot td{font-weight:bold}
+  .muted{color:#666}
+  @media print{a[href]::after{content:" (" attr(href) ")";font-size:10px;color:#666}}
+</style></head>
+<body>
+  <h1>Human + AI Attribution Scale — Summary</h1>
+  <div class="meta">Generated: ${now.toLocaleString()} • Link: <a href="${url}">${url}</a></div>
+  <div class="anchors">Anchors: ${left} — ${center} — ${right}</div>
+  <div class="score">Overall score: <strong>${s.toFixed(1)}</strong> / 100</div>
+  <table>
+    <thead><tr><th style="width:36px">#</th><th>Topic</th><th style="width:30%">Selection</th><th style="width:80px">Value</th><th style="width:70px">Weight</th><th style="width:120px">Contribution</th></tr></thead>
+    <tbody>
+      ${rows.map((r,i)=>`<tr>
+        <td>${i+1}</td>
+        <td>${r.title}</td>
+        <td>${r.label}</td>
+        <td>${r.value==null?'<span class="muted">—</span>':r.value}</td>
+        <td>${r.weight}</td>
+        <td>${r.contribution==null?'<span class="muted">—</span>':r.contribution.toFixed(1)}</td>
+      </tr>`).join('')}
+    </tbody>
+    <tfoot><tr><td colspan="6">Unanswered items do not affect the average.</td></tr></tfoot>
+  </table>
+</body></html>`;
+
+        const w = window.open('', 'summaryPrint');
+        w.document.open();
+        w.document.write(html);
+        w.document.close();
+        w.focus();
+        // give the browser a tick to render before printing
+        setTimeout(()=>{ w.print(); }, 250);
+      }
+
       // Event delegation on the container to catch any radio changes
       const qgrid = document.getElementById('questionGrid');
       if(qgrid){
@@ -227,7 +296,7 @@
         });
       }
 
-      // Restore from hash
+      // Restore from hash on load
       (function restoreFromHash(){
         const params = new URLSearchParams(location.hash.replace(/^#/,''));
         groups.forEach(g=>{
@@ -248,7 +317,8 @@
             const t = event.target; const old = t.textContent; t.textContent = 'Link copied!';
             setTimeout(()=> t.textContent = old, 1500);
           }catch(e){
-            alert('Could not copy. Manually copy this URL:\n'+location.href);
+            alert('Could not copy. Manually copy this URL:
+'+location.href);
           }
         });
       }
@@ -261,8 +331,14 @@
         });
       }
 
+      const downloadBtn = document.getElementById('downloadBtn');
+      if(downloadBtn){
+        downloadBtn.addEventListener('click', downloadSummary);
+      }
+
       update(false);
       window.__updateAttribution = update; // expose for testing if needed
+      window.__downloadSummary = downloadSummary;
     }
 
     // Run immediately if DOM is already ready; otherwise wait
