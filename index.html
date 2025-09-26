@@ -21,9 +21,9 @@
     .anchors{display:flex;justify-content:space-between;gap:12px;margin:18px 0 4px 0;font-weight:600}
     .center-label{display:flex;justify-content:center;margin:0 0 8px 0;font-weight:700;color:#374151}
     .slider-area{position:relative;margin:8px 0 18px 0;height:56px}
-    .track{position:absolute;left:0;right:0;top:50%;height:8px;transform:translateY(-50%);background:var(--track);border-radius:999px}
-    .fill{position:absolute;left:0;top:50%;height:8px;transform:translateY(-50%);background:linear-gradient(90deg,var(--accent),#60a5fa);border-radius:999px;width:50%}
-    .thumb{position:absolute;top:50%;transform:translate(-50%,-50%);width:24px;height:24px;border-radius:999px;background:var(--thumb);box-shadow:0 2px 10px rgba(0,0,0,.18)}
+    .track{position:absolute;left:0;right:0;top:50%;height:8px;transform:translateY(-50%);background:var(--track);border-radius:999px;z-index:0}
+    .fill{position:absolute;left:0;top:50%;height:8px;transform:translateY(-50%);background:linear-gradient(90deg,var(--accent),#60a5fa);border-radius:999px;width:50%;z-index:1}
+    .thumb{position:absolute;top:50%;transform:translate(-50%,-50%);width:24px;height:24px;border-radius:999px;background:var(--thumb);box-shadow:0 2px 10px rgba(0,0,0,.18);z-index:2}
     .score{display:flex;align-items:center;gap:10px;font-variant-numeric:tabular-nums}
     .score strong{font-size:20px}
     .card{background:white;border:1px solid #e5e7eb;border-radius:16px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,.04)}
@@ -177,7 +177,6 @@
         {name:'q6', weight:1, title:'Was AI used for citation management (discovering, formatting, or summarizing references)?', options:{'100':'Yes, without revision','50':'Yes, with revision and validation','0':'No'}}
       ];
 
-      // Keep a lean array for averaging logic
       const groups = questions.map(q=>({name:q.name, weight:q.weight}));
 
       function getVal(name){
@@ -201,12 +200,12 @@
       function update(pushHash=false){
         const {avg, snapshot} = computeAverage();
         const s = Math.max(0,Math.min(100,avg));
-        scoreOut.textContent = Math.round(s);
-        thumb.style.left = s+"%";
-        fill.style.width = s+"%";
-        
-        // Optional debug panel when ?debug=1
-        if(new URLSearchParams(location.search).get('debug')==='1'){
+        if(scoreOut) scoreOut.textContent = Math.round(s);
+        if(thumb) thumb.style.left = s+"%";
+        if(fill) fill.style.width = s+"%";
+
+        // Debug (optional)
+        if(debug && new URLSearchParams(location.search).get('debug')==='1'){
           debug.style.display='block';
           debug.textContent = `values: ${JSON.stringify(snapshot)} | avg=${s.toFixed(1)}`;
           if(window.console) console.log('Attribution update', {snapshot, s});
@@ -241,60 +240,34 @@
         const now = new Date();
         const url = location.href;
 
-        const html = `<!doctype html>
-<html><head><meta charset="utf-8"><title>Human + AI Attribution Summary</title>
-<style>
-  body{font-family:Arial,Helvetica,sans-serif;margin:24px;color:#111}
-  h1{font-size:22px;margin:0 0 4px}
-  .meta{font-size:12px;color:#555;margin-bottom:12px}
-  .anchors{margin:6px 0 14px 0;font-weight:bold}
-  .score{font-size:18px;margin:10px 0 16px 0}
-  table{border-collapse:collapse;width:100%;font-size:13px}
-  th,td{border:1px solid #ddd;padding:8px;vertical-align:top}
-  th{background:#f4f6f8;text-align:left}
-  tfoot td{font-weight:bold}
-  .muted{color:#666}
-  @media print{a[href]::after{content:" (" attr(href) ")";font-size:10px;color:#666}}
-</style></head>
-<body>
-  <h1>Human + AI Attribution Scale — Summary</h1>
-  <div class="meta">Generated: ${now.toLocaleString()} • Link: <a href="${url}">${url}</a></div>
-  <div class="anchors">Anchors: ${left} — ${center} — ${right}</div>
-  <div class="score">Overall score: <strong>${s.toFixed(1)}</strong> / 100</div>
-  <table>
-    <thead><tr><th style="width:36px">#</th><th>Topic</th><th style="width:30%">Selection</th><th style="width:80px">Value</th><th style="width:70px">Weight</th><th style="width:120px">Contribution</th></tr></thead>
-    <tbody>
-      ${rows.map((r,i)=>`<tr>
-        <td>${i+1}</td>
-        <td>${r.title}</td>
-        <td>${r.label}</td>
-        <td>${r.value==null?'<span class="muted">—</span>':r.value}</td>
-        <td>${r.weight}</td>
-        <td>${r.contribution==null?'<span class="muted">—</span>':r.contribution.toFixed(1)}</td>
-      </tr>`).join('')}
-    </tbody>
-    <tfoot><tr><td colspan="6">Unanswered items do not affect the average.</td></tr></tfoot>
-  </table>
-</body></html>`;
+        const html = `<!doctype html><meta charset="utf-8"><title>Human + AI Attribution Summary</title>
+<style>body{font-family:Arial,Helvetica,sans-serif;margin:24px;color:#111}h1{font-size:22px;margin:0 0 4px}.meta{font-size:12px;color:#555;margin-bottom:12px}.anchors{margin:6px 0 14px 0;font-weight:bold}.score{font-size:18px;margin:10px 0 16px 0}table{border-collapse:collapse;width:100%;font-size:13px}th,td{border:1px solid #ddd;padding:8px;vertical-align:top}th{background:#f4f6f8;text-align:left}tfoot td{font-weight:bold}.muted{color:#666}@media print{a[href]::after{content:" (" attr(href) ")";font-size:10px;color:#666}}</style>
+<h1>Human + AI Attribution Scale — Summary</h1>
+<div class="meta">Generated: ${now.toLocaleString()} • Link: <a href="${url}">${url}</a></div>
+<div class="anchors">Anchors: ${left} — ${center} — ${right}</div>
+<div class="score">Overall score: <strong>${s.toFixed(1)}</strong> / 100</div>
+<table><thead><tr><th style="width:36px">#</th><th>Topic</th><th style="width:30%">Selection</th><th style="width:80px">Value</th><th style="width:70px">Weight</th><th style="width:120px">Contribution</th></tr></thead><tbody>
+${rows.map((r,i)=>`<tr><td>${i+1}</td><td>${r.title}</td><td>${r.label}</td><td>${r.value==null?'<span class="muted">—</span>':r.value}</td><td>${r.weight}</td><td>${r.contribution==null?'<span class="muted">—</span>':r.contribution.toFixed(1)}</td></tr>`).join('')}
+</tbody><tfoot><tr><td colspan="6">Unanswered items do not affect the average.</td></tr></tfoot></table>`;
 
         const w = window.open('', 'summaryPrint');
         w.document.open();
         w.document.write(html);
         w.document.close();
         w.focus();
-        // give the browser a tick to render before printing
         setTimeout(()=>{ w.print(); }, 250);
       }
 
-      // Event delegation on the container to catch any radio changes
+      // Attach listeners (both delegation and direct, to be extra safe)
       const qgrid = document.getElementById('questionGrid');
       if(qgrid){
         qgrid.addEventListener('change', (e)=>{
-          if(e.target && e.target.matches('input[type="radio"][name^="q"]')){
-            update(true);
-          }
+          if(e.target && e.target.matches('input[type="radio"][name^="q"]')) update(true);
         });
       }
+      document.querySelectorAll('input[type="radio"][name^="q"]').forEach(i=>{
+        i.addEventListener('change', ()=> update(true));
+      });
 
       // Restore from hash on load
       (function restoreFromHash(){
@@ -309,39 +282,32 @@
       })();
 
       // Buttons
-      const shareBtn = document.getElementById('shareBtn');
-      if(shareBtn){
-        shareBtn.addEventListener('click', async (event)=>{
-          try{
-            await navigator.clipboard.writeText(location.href);
-            const t = event.target; const old = t.textContent; t.textContent = 'Link copied!';
-            setTimeout(()=> t.textContent = old, 1500);
-          }catch(e){
-            alert('Could not copy. Manually copy this URL:
-'+location.href);
-          }
-        });
-      }
+      document.getElementById('shareBtn')?.addEventListener('click', async (event)=>{
+        try{
+          await navigator.clipboard.writeText(location.href);
+          const t = event.target; const old = t.textContent; t.textContent = 'Link copied!';
+          setTimeout(()=> t.textContent = old, 1500);
+        }catch(e){ alert('Could not copy. Manually copy this URL:\n'+location.href); }
+      });
 
-      const resetBtn = document.getElementById('resetBtn');
-      if(resetBtn){
-        resetBtn.addEventListener('click', ()=>{
-          document.querySelectorAll('input[type="radio"]').forEach(i=> i.checked=false);
-          update(true);
-        });
-      }
+      document.getElementById('resetBtn')?.addEventListener('click', ()=>{
+        document.querySelectorAll('input[type="radio"]').forEach(i=> i.checked=false);
+        update(true);
+      });
 
-      const downloadBtn = document.getElementById('downloadBtn');
-      if(downloadBtn){
-        downloadBtn.addEventListener('click', downloadSummary);
-      }
+      document.getElementById('downloadBtn')?.addEventListener('click', downloadSummary);
 
       update(false);
-      window.__updateAttribution = update; // expose for testing if needed
+      window.__updateAttribution = update; // expose for testing
       window.__downloadSummary = downloadSummary;
     }
 
     // Run immediately if DOM is already ready; otherwise wait
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', initAttribution);
+    } else {
+      initAttribution();
+    } if DOM is already ready; otherwise wait
     if(document.readyState === 'loading'){
       document.addEventListener('DOMContentLoaded', initAttribution);
     } else {
