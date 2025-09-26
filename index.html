@@ -20,7 +20,7 @@
     h1{font-size:clamp(22px,3.4vw,32px);margin:0}
     .anchors{display:flex;justify-content:space-between;gap:12px;margin:18px 0 4px 0;font-weight:600}
     .center-label{display:flex;justify-content:center;margin:0 0 8px 0;font-weight:700;color:#374151}
-    .slider-area{position:relative;margin:8px 0 18px 0;height:56px}
+    .slider-area{position:relative;margin:8px 0 8px 0;height:56px}
     .track{position:absolute;left:0;right:0;top:50%;height:8px;transform:translateY(-50%);background:var(--track);border-radius:999px;z-index:0}
     .fill{position:absolute;left:0;top:50%;height:8px;transform:translateY(-50%);background:linear-gradient(90deg,var(--accent),#60a5fa);border-radius:999px;width:50%;z-index:1}
     .thumb{position:absolute;top:50%;transform:translate(-50%,-50%);width:24px;height:24px;border-radius:999px;background:var(--thumb);box-shadow:0 2px 10px rgba(0,0,0,.18);z-index:2}
@@ -37,12 +37,12 @@
     button{border:1px solid #d1d5db;background:white;border-radius:12px;padding:10px 14px;cursor:pointer}
     button.primary{background:var(--accent);border-color:var(--accent);color:white}
     .tiny{font-size:12px;color:#6b7280}
-
     @media print{
       body{background:white;padding:0}
       .controls{display:none}
       .card{box-shadow:none}
     }
+    /* Native range appearance is browser-default; left unstyled on purpose */
   </style>
 </head>
 <body>
@@ -65,10 +65,9 @@
       <div class="fill" id="fill" aria-hidden="true" style="width:50%"></div>
       <div class="thumb" id="thumb" style="left:50%"></div>
     </div>
+    <!-- Native mirror slider (read-only visual; ensures movement even if custom CSS breaks) -->
     <input type="range" id="range" min="0" max="100" value="50" aria-label="Attribution position (read-only)" style="width:100%; margin:8px 0 0 0; pointer-events:none;"/>
     <div id="debug" class="tiny" style="display:none;margin-top:6px"></div>
-
-  </div>
 
     <section class="card" aria-labelledby="inputsTitle">
       <h2 id="inputsTitle" style="margin-top:0;font-size:18px">Selections</h2>
@@ -155,7 +154,6 @@
 
     <div class="controls" style="margin-top:14px">
       <button class="primary" id="shareBtn" title="Copy a shareable URL with your current state">Copy shareable link</button>
-      <button id="downloadBtn" title="Download a printable summary as PDF">Download summary (PDF)</button>
       <button id="resetBtn" title="Reset all inputs">Reset</button>
       <span class="tiny">Tip: Add this page’s link or QR code to your PDF for universal interactivity.</span>
     </div>
@@ -165,10 +163,10 @@
     function initAttribution(){
       const scoreOut = document.getElementById('scoreOut');
       const thumb = document.getElementById('thumb');
-      const fill = document.getElementById('fill');
+      const fill  = document.getElementById('fill');
       const debug = document.getElementById('debug');
 
-      // Metadata for labels + weights
+      // Questions + weights
       const questions = [
         {name:'q1', weight:1, title:'AI assisted with literature review', options:{'100':'Yes, without revision','50':'Yes, with revision and validation','0':'No'}},
         {name:'q2', weight:1, title:'Was AI used to develop language presented in the submission?', options:{'100':'Yes, without revision','50':'Yes, with revision and validation','0':'No'}},
@@ -177,8 +175,7 @@
         {name:'q5', weight:2, title:'Was AI used for code/statistical drafting or analysis scripting?', options:{'100':'Yes, without revision','50':'Yes, with revision and validation','0':'No'}},
         {name:'q6', weight:1, title:'Was AI used for citation management (discovering, formatting, or summarizing references)?', options:{'100':'Yes, without revision','50':'Yes, with revision and validation','0':'No'}}
       ];
-
-      const groups = questions.map(q=>({name:q.name, weight:q.weight}));
+      const groups = questions.map(q => ({ name:q.name, weight:q.weight }));
 
       function getVal(name){
         const sel = document.querySelector(`input[name="${name}"]:checked`);
@@ -186,118 +183,66 @@
       }
 
       function computeAverage(){
-        let sum=0, wsum=0; const snapshot={};
+        let sum = 0, wsum = 0, snapshot = {};
         for(const g of groups){
           const v = getVal(g.name);
-          snapshot[g.name]=v; // for debug
-          if(v==null) continue;
-          sum += v * (g.weight||1);
+          snapshot[g.name] = v;
+          if(v == null) continue;
+          sum  += v * (g.weight||1);
           wsum += (g.weight||1);
         }
-        const avg = (wsum===0) ? 50 : (sum/wsum);
-        return {avg, snapshot};
+        const avg = (wsum === 0) ? 50 : (sum / wsum);
+        return { avg, snapshot };
       }
 
       function update(pushHash=false){
-        const {avg, snapshot} = computeAverage();
-        const s = Math.max(0,Math.min(100,avg));
+        const { avg, snapshot } = computeAverage();
+        const s = Math.max(0, Math.min(100, avg));
         if(scoreOut) scoreOut.textContent = Math.round(s);
-        if(thumb) thumb.style.left = s+"%";
-        if(fill) fill.style.width = s+"%";
+
+        // Custom slider visuals
+        if(thumb) thumb.style.left = s + "%";
+        if(fill)  fill.style.width = s + "%";
+
+        // Native mirror slider
         const range = document.getElementById('range');
         if(range){ range.value = s; }
 
-        if(debug && new URLSearchParams(location.search).get('debug')==='1'){
-          debug.style.display='block';
+        // Optional debug
+        if(debug && new URLSearchParams(location.search).get('debug') === '1'){
+          debug.style.display = 'block';
           debug.textContent = `values: ${JSON.stringify(snapshot)} | avg=${s.toFixed(1)}`;
           if(window.console) console.log('Attribution update', {snapshot, s});
         }
 
+        // Persist in hash
         if(pushHash){
           const params = new URLSearchParams();
           for(const g of groups){
             const v = getVal(g.name);
-            if(v!=null) params.set(g.name, String(v));
-          }
-          history.replaceState(null,'','#'+params.toString());
-        }
-      } = computeAverage();
-        const s = Math.max(0,Math.min(100,avg));
-        if(scoreOut) scoreOut.textContent = Math.round(s);
-        if(thumb) thumb.style.left = s+"%";
-        if(fill) fill.style.width = s+"%";
-
-        // Debug (optional)
-        if(debug && new URLSearchParams(location.search).get('debug')==='1'){
-          debug.style.display='block';
-          debug.textContent = `values: ${JSON.stringify(snapshot)} | avg=${s.toFixed(1)}`;
-          if(window.console) console.log('Attribution update', {snapshot, s});
-        }
-
-        if(pushHash){
-          const params = new URLSearchParams();
-          for(const g of groups){
-            const v = getVal(g.name);
-            if(v!=null) params.set(g.name, String(v));
+            if(v != null) params.set(g.name, String(v));
           }
           history.replaceState(null,'','#'+params.toString());
         }
       }
 
-      function getSnapshot(){
-        return questions.map(q=>{
-          const v = getVal(q.name);
-          const label = v==null ? '—' : (q.options[String(v)] || `Value ${v}`);
-          const contribution = (v==null) ? null : v*(q.weight||1);
-          return {name:q.name, title:q.title, value:v, label, weight:q.weight||1, contribution};
-        });
-      }
-
-      function downloadSummary(){
-        const left = document.getElementById('leftLabel')?.textContent || 'Human Generated';
-        const center = document.getElementById('centerLabel')?.textContent || 'Collaboration';
-        const right = document.getElementById('rightLabel')?.textContent || 'AI Generated';
-        const {avg} = computeAverage();
-        const s = Math.max(0,Math.min(100,avg));
-        const rows = getSnapshot();
-        const now = new Date();
-        const url = location.href;
-
-        const html = `<!doctype html><meta charset="utf-8"><title>Human + AI Attribution Summary</title>
-<style>body{font-family:Arial,Helvetica,sans-serif;margin:24px;color:#111}h1{font-size:22px;margin:0 0 4px}.meta{font-size:12px;color:#555;margin-bottom:12px}.anchors{margin:6px 0 14px 0;font-weight:bold}.score{font-size:18px;margin:10px 0 16px 0}table{border-collapse:collapse;width:100%;font-size:13px}th,td{border:1px solid #ddd;padding:8px;vertical-align:top}th{background:#f4f6f8;text-align:left}tfoot td{font-weight:bold}.muted{color:#666}@media print{a[href]::after{content:" (" attr(href) ")";font-size:10px;color:#666}}</style>
-<h1>Human + AI Attribution Scale — Summary</h1>
-<div class="meta">Generated: ${now.toLocaleString()} • Link: <a href="${url}">${url}</a></div>
-<div class="anchors">Anchors: ${left} — ${center} — ${right}</div>
-<div class="score">Overall score: <strong>${s.toFixed(1)}</strong> / 100</div>
-<table><thead><tr><th style="width:36px">#</th><th>Topic</th><th style="width:30%">Selection</th><th style="width:80px">Value</th><th style="width:70px">Weight</th><th style="width:120px">Contribution</th></tr></thead><tbody>
-${rows.map((r,i)=>`<tr><td>${i+1}</td><td>${r.title}</td><td>${r.label}</td><td>${r.value==null?'<span class="muted">—</span>':r.value}</td><td>${r.weight}</td><td>${r.contribution==null?'<span class="muted">—</span>':r.contribution.toFixed(1)}</td></tr>`).join('')}
-</tbody><tfoot><tr><td colspan="6">Unanswered items do not affect the average.</td></tr></tfoot></table>`;
-
-        const w = window.open('', 'summaryPrint');
-        w.document.open();
-        w.document.write(html);
-        w.document.close();
-        w.focus();
-        setTimeout(()=>{ w.print(); }, 250);
-      }
-
-      // Attach listeners (both delegation and direct, to be extra safe)
+      // Listen to any radio change (delegation + direct)
       const qgrid = document.getElementById('questionGrid');
       if(qgrid){
-        qgrid.addEventListener('change', (e)=>{
+        qgrid.addEventListener('change', (e) => {
           if(e.target && e.target.matches('input[type="radio"][name^="q"]')) update(true);
         });
       }
-      document.querySelectorAll('input[type="radio"][name^="q"]').forEach(i=>{
-        i.addEventListener('change', ()=> update(true));
+      document.querySelectorAll('input[type="radio"][name^="q"]').forEach(i => {
+        i.addEventListener('change', () => update(true));
       });
 
-      // Restore from hash on load
+      // Restore from hash
       (function restoreFromHash(){
-        const params = new URLSearchParams(location.hash.replace(/^#/,''));
-        groups.forEach(g=>{
+        const params = new URLSearchParams(location.hash.replace(/^#/, ''));
+        groups.forEach(g => {
           const v = params.get(g.name);
-          if(v!=null){
+          if(v != null){
             const el = document.querySelector(`input[name="${g.name}"][value="${v}"]`);
             if(el) el.checked = true;
           }
@@ -310,8 +255,7 @@ ${rows.map((r,i)=>`<tr><td>${i+1}</td><td>${r.title}</td><td>${r.label}</td><td>
           await navigator.clipboard.writeText(location.href);
           const t = event.target; const old = t.textContent; t.textContent = 'Link copied!';
           setTimeout(()=> t.textContent = old, 1500);
-        }catch(e){ alert('Could not copy. Manually copy this URL:
-'+location.href); }
+        }catch(e){ alert('Could not copy. Manually copy this URL:\n'+location.href); }
       });
 
       document.getElementById('resetBtn')?.addEventListener('click', ()=>{
@@ -319,19 +263,11 @@ ${rows.map((r,i)=>`<tr><td>${i+1}</td><td>${r.title}</td><td>${r.label}</td><td>
         update(true);
       });
 
-      document.getElementById('downloadBtn')?.addEventListener('click', downloadSummary);
-
       update(false);
-      window.__updateAttribution = update; // expose for testing
-      window.__downloadSummary = downloadSummary;
+      // Expose for quick console checks if needed
+      window.__updateAttribution = update;
     }
 
-    // Run immediately if DOM is already ready; otherwise wait
-    if(document.readyState === 'loading'){
-      document.addEventListener('DOMContentLoaded', initAttribution);
-    } else {
-      initAttribution();
-    } if DOM is already ready; otherwise wait
     if(document.readyState === 'loading'){
       document.addEventListener('DOMContentLoaded', initAttribution);
     } else {
