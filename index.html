@@ -20,9 +20,9 @@
     h1{font-size:clamp(22px,3.4vw,32px);margin:0}
     .anchors{display:flex;justify-content:space-between;gap:12px;margin:18px 0 4px 0;font-weight:600}
     .center-label{display:flex;justify-content:center;margin:0 0 8px 0;font-weight:700;color:#374151}
-    .slider-area{position:relative;margin:8px 0 8px 0;height:56px}
+    .slider-area{position:relative;margin:8px 0 8px 0;height:56px;border-radius:16px;background:white;}
     .track{position:absolute;left:0;right:0;top:50%;height:8px;transform:translateY(-50%);background:var(--track);border-radius:999px;z-index:0}
-    .fill{position:absolute;left:0;top:50%;height:8px;transform:translateY(-50%);background:linear-gradient(90deg,var(--accent),#60a5fa);border-radius:999px;width:50%;z-index:1}
+    .fill{position:absolute;left:0;top:50%;height:8px;transform:translateY(-50%);background:var(--accent);border-radius:999px;width:50%;z-index:1}
     .thumb{position:absolute;top:50%;transform:translate(-50%,-50%);width:24px;height:24px;border-radius:999px;background:var(--thumb);box-shadow:0 2px 10px rgba(0,0,0,.18);z-index:2}
     .score{display:flex;align-items:center;gap:10px;font-variant-numeric:tabular-nums}
     .score strong{font-size:20px}
@@ -42,7 +42,6 @@
       .controls{display:none}
       .card{box-shadow:none}
     }
-    /* Native range appearance is browser-default; left unstyled on purpose */
   </style>
 </head>
 <body>
@@ -60,92 +59,73 @@
     </div>
     <div class="center-label" id="centerLabel">Collaboration</div>
 
-    <div class="slider-area card" role="img" aria-label="Position between Human Generated and AI Generated">
+    <div class="slider-area" role="img" aria-label="Position between Human Generated and AI Generated">
       <div class="track" aria-hidden="true"></div>
       <div class="fill" id="fill" aria-hidden="true" style="width:50%"></div>
       <div class="thumb" id="thumb" style="left:50%"></div>
     </div>
-    <!-- Native mirror slider (read-only visual; ensures movement even if custom CSS breaks) -->
+
     <input type="range" id="range" min="0" max="100" value="50" aria-label="Attribution position (read-only)" style="width:100%; margin:8px 0 0 0; pointer-events:none;"/>
-    <div id="debug" class="tiny" style="display:none;margin-top:6px"></div>
 
     <section class="card" aria-labelledby="inputsTitle">
       <h2 id="inputsTitle" style="margin-top:0;font-size:18px">Selections</h2>
       <div class="qgrid" id="questionGrid">
-        <!-- Q1 -->
         <div class="topic">1. AI assisted with literature review</div>
         <div class="radio-row">
           <input type="radio" id="q1a" name="q1" value="100" />
           <label for="q1a">Yes, without revision</label>
-
           <input type="radio" id="q1b" name="q1" value="50" />
           <label for="q1b">Yes, with revision and validation</label>
-
           <input type="radio" id="q1c" name="q1" value="0" />
           <label for="q1c">No</label>
         </div>
 
-        <!-- Q2 -->
         <div class="topic">2. Was AI used to develop language presented in the submission?</div>
         <div class="radio-row">
           <input type="radio" id="q2a" name="q2" value="100" />
           <label for="q2a">Yes, without revision</label>
-
           <input type="radio" id="q2b" name="q2" value="50" />
           <label for="q2b">Yes, with revision and validation</label>
-
           <input type="radio" id="q2c" name="q2" value="0" />
           <label for="q2c">No</label>
         </div>
 
-        <!-- Q3 -->
         <div class="topic">3. Was AI used in data evaluation?</div>
         <div class="radio-row">
           <input type="radio" id="q3a" name="q3" value="100" />
           <label for="q3a">Yes, without revision</label>
-
           <input type="radio" id="q3b" name="q3" value="50" />
           <label for="q3b">Yes, with revision and validation</label>
-
           <input type="radio" id="q3c" name="q3" value="0" />
           <label for="q3c">No</label>
         </div>
 
-        <!-- Q4 -->
         <div class="topic">4. Was AI used for idea generation (outlines, prompts, brainstorming)?</div>
         <div class="radio-row">
           <input type="radio" id="q4a" name="q4" value="100" />
           <label for="q4a">Yes, without revision</label>
-
           <input type="radio" id="q4b" name="q4" value="50" />
           <label for="q4b">Yes, with revision and validation</label>
-
           <input type="radio" id="q4c" name="q4" value="0" />
           <label for="q4c">No</label>
         </div>
 
-        <!-- Q5 -->
         <div class="topic">5. Was AI used for code/statistical drafting or analysis scripting?</div>
         <div class="radio-row">
           <input type="radio" id="q5a" name="q5" value="100" />
           <label for="q5a">Yes, without revision</label>
-
           <input type="radio" id="q5b" name="q5" value="50" />
           <label for="q5b">Yes, with revision and validation</label>
-
           <input type="radio" id="q5c" name="q5" value="0" />
           <label for="q5c">No</label>
         </div>
 
-        <!-- Q6 -->
         <div class="topic">6. Was AI used for citation management (discovering, formatting, or summarizing references)?</div>
         <div class="radio-row">
           <input type="radio" id="q6a" name="q6" value="100" />
           <label for="q6a">Yes, without revision</label>
-
           <input type="radio" id="q6b" name="q6" value="50" />
           <label for="q6b">Yes, with revision and validation</label>
-
           <input type="radio" id="q6c" name="q6" value="0" />
           <label for="q6c">No</label>
         </div>
@@ -164,18 +144,14 @@
       const scoreOut = document.getElementById('scoreOut');
       const thumb = document.getElementById('thumb');
       const fill  = document.getElementById('fill');
-      const debug = document.getElementById('debug');
-
-      // Questions + weights
       const questions = [
-        {name:'q1', weight:1, title:'AI assisted with literature review', options:{'100':'Yes, without revision','50':'Yes, with revision and validation','0':'No'}},
-        {name:'q2', weight:1, title:'Was AI used to develop language presented in the submission?', options:{'100':'Yes, without revision','50':'Yes, with revision and validation','0':'No'}},
-        {name:'q3', weight:2, title:'Was AI used in data evaluation?', options:{'100':'Yes, without revision','50':'Yes, with revision and validation','0':'No'}},
-        {name:'q4', weight:1, title:'Was AI used for idea generation (outlines, prompts, brainstorming)?', options:{'100':'Yes, without revision','50':'Yes, with revision and validation','0':'No'}},
-        {name:'q5', weight:2, title:'Was AI used for code/statistical drafting or analysis scripting?', options:{'100':'Yes, without revision','50':'Yes, with revision and validation','0':'No'}},
-        {name:'q6', weight:1, title:'Was AI used for citation management (discovering, formatting, or summarizing references)?', options:{'100':'Yes, without revision','50':'Yes, with revision and validation','0':'No'}}
+        {name:'q1', weight:1},
+        {name:'q2', weight:1},
+        {name:'q3', weight:2},
+        {name:'q4', weight:1},
+        {name:'q5', weight:2},
+        {name:'q6', weight:1}
       ];
-      const groups = questions.map(q => ({ name:q.name, weight:q.weight }));
 
       function getVal(name){
         const sel = document.querySelector(`input[name="${name}"]:checked`);
@@ -183,74 +159,37 @@
       }
 
       function computeAverage(){
-        let sum = 0, wsum = 0, snapshot = {};
-        for(const g of groups){
-          const v = getVal(g.name);
-          snapshot[g.name] = v;
+        let sum = 0, wsum = 0;
+        for(const q of questions){
+          const v = getVal(q.name);
           if(v == null) continue;
-          sum  += v * (g.weight||1);
-          wsum += (g.weight||1);
+          sum += v * q.weight;
+          wsum += q.weight;
         }
-        const avg = (wsum === 0) ? 50 : (sum / wsum);
-        return { avg, snapshot };
+        return (wsum === 0) ? 50 : (sum / wsum);
       }
 
       function update(pushHash=false){
-        const { avg, snapshot } = computeAverage();
-        const s = Math.max(0, Math.min(100, avg));
-        if(scoreOut) scoreOut.textContent = Math.round(s);
-
-        // Custom slider visuals
-        if(thumb) thumb.style.left = s + "%";
-        if(fill)  fill.style.width = s + "%";
-
-        // Native mirror slider
-        const range = document.getElementById('range');
-        if(range){ range.value = s; }
-
-        // Optional debug
-        if(debug && new URLSearchParams(location.search).get('debug') === '1'){
-          debug.style.display = 'block';
-          debug.textContent = `values: ${JSON.stringify(snapshot)} | avg=${s.toFixed(1)}`;
-          if(window.console) console.log('Attribution update', {snapshot, s});
-        }
-
-        // Persist in hash
+        const s = Math.max(0, Math.min(100, computeAverage()));
+        scoreOut.textContent = Math.round(s);
+        thumb.style.left = s + "%";
+        fill.style.width = s + "%";
+        document.getElementById('range').value = s;
         if(pushHash){
           const params = new URLSearchParams();
-          for(const g of groups){
-            const v = getVal(g.name);
-            if(v != null) params.set(g.name, String(v));
+          for(const q of questions){
+            const v = getVal(q.name);
+            if(v != null) params.set(q.name, String(v));
           }
           history.replaceState(null,'','#'+params.toString());
         }
       }
 
-      // Listen to any radio change (delegation + direct)
-      const qgrid = document.getElementById('questionGrid');
-      if(qgrid){
-        qgrid.addEventListener('change', (e) => {
-          if(e.target && e.target.matches('input[type="radio"][name^="q"]')) update(true);
-        });
-      }
-      document.querySelectorAll('input[type="radio"][name^="q"]').forEach(i => {
-        i.addEventListener('change', () => update(true));
+      document.getElementById('questionGrid').addEventListener('change', e => {
+        if(e.target && e.target.matches('input[type="radio"][name^="q"]')) update(true);
       });
 
-      // Restore from hash
-      (function restoreFromHash(){
-        const params = new URLSearchParams(location.hash.replace(/^#/, ''));
-        groups.forEach(g => {
-          const v = params.get(g.name);
-          if(v != null){
-            const el = document.querySelector(`input[name="${g.name}"][value="${v}"]`);
-            if(el) el.checked = true;
-          }
-        });
-      })();
-
-      // Buttons
-      document.getElementById('shareBtn')?.addEventListener('click', async (event)=>{
+      document.getElementById('shareBtn').addEventListener('click', async (event)=>{
         try{
           await navigator.clipboard.writeText(location.href);
           const t = event.target; const old = t.textContent; t.textContent = 'Link copied!';
@@ -258,21 +197,14 @@
         }catch(e){ alert('Could not copy. Manually copy this URL:\n'+location.href); }
       });
 
-      document.getElementById('resetBtn')?.addEventListener('click', ()=>{
+      document.getElementById('resetBtn').addEventListener('click', ()=>{
         document.querySelectorAll('input[type="radio"]').forEach(i=> i.checked=false);
         update(true);
       });
 
       update(false);
-      // Expose for quick console checks if needed
-      window.__updateAttribution = update;
     }
-
-    if(document.readyState === 'loading'){
-      document.addEventListener('DOMContentLoaded', initAttribution);
-    } else {
-      initAttribution();
-    }
+    document.addEventListener('DOMContentLoaded', initAttribution);
   </script>
 </body>
 </html>
