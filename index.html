@@ -37,6 +37,8 @@
     button{border:1px solid #d1d5db;background:white;border-radius:12px;padding:10px 14px;cursor:pointer}
     button.primary{background:var(--accent);border-color:var(--accent);color:white}
     .tiny{font-size:12px;color:#6b7280}
+    /* Hide the native range to prevent the 'second blue line' while keeping custom slider visuals */
+    #range{display:none}
     @media print{
       body{background:white;padding:0}
       .controls{display:none}
@@ -65,7 +67,8 @@
       <div class="thumb" id="thumb" style="left:50%"></div>
     </div>
 
-    <input type="range" id="range" min="0" max="100" value="50" aria-label="Attribution position (read-only)" style="width:100%; margin:8px 0 0 0; pointer-events:none;"/>
+    <!-- Native mirror slider removed from visual flow to eliminate the second blue line -->
+    <input type="range" id="range" min="0" max="100" value="50" aria-hidden="true" aria-label="Attribution position (read-only)"/>
 
     <section class="card" aria-labelledby="inputsTitle">
       <h2 id="inputsTitle" style="margin-top:0;font-size:18px">Selections</h2>
@@ -144,6 +147,7 @@
       const scoreOut = document.getElementById('scoreOut');
       const thumb = document.getElementById('thumb');
       const fill  = document.getElementById('fill');
+
       const questions = [
         {name:'q1', weight:1},
         {name:'q2', weight:1},
@@ -174,7 +178,6 @@
         scoreOut.textContent = Math.round(s);
         thumb.style.left = s + "%";
         fill.style.width = s + "%";
-        document.getElementById('range').value = s;
         if(pushHash){
           const params = new URLSearchParams();
           for(const q of questions){
@@ -185,7 +188,8 @@
         }
       }
 
-      document.getElementById('questionGrid').addEventListener('change', e => {
+      const qgrid = document.getElementById('questionGrid');
+      qgrid.addEventListener('change', e => {
         if(e.target && e.target.matches('input[type="radio"][name^="q"]')) update(true);
       });
 
@@ -203,6 +207,7 @@
       });
 
       update(false);
+      window.__updateAttribution = update;
     }
     document.addEventListener('DOMContentLoaded', initAttribution);
   </script>
