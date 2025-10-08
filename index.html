@@ -20,10 +20,11 @@
     h1{font-size:clamp(22px,3.4vw,32px);margin:0}
     .anchors{display:flex;justify-content:space-between;gap:12px;margin:18px 0 4px 0;font-weight:600}
     .center-label{display:flex;justify-content:center;margin:0 0 8px 0;font-weight:700;color:#374151}
-    .slider-area{position:relative;margin:8px 0 8px 0;height:56px;border-radius:16px;background:white;}
-    .track{position:absolute;left:0;right:0;top:50%;height:8px;transform:translateY(-50%);background:var(--track);border-radius:999px;z-index:0}
-    .fill{position:absolute;left:0;top:50%;height:8px;transform:translateY(-50%);background:var(--accent);border-radius:999px;width:50%;z-index:1}
-    .thumb{position:absolute;top:50%;transform:translate(-50%,-50%);width:24px;height:24px;border-radius:999px;background:var(--thumb);box-shadow:0 2px 10px rgba(0,0,0,.18);z-index:2}
+    /* Custom slider (no native range present) */
+    .slider-area{position:relative;margin:8px 0;height:56px}
+    .bar{position:absolute;left:0;right:0;top:50%;height:10px;transform:translateY(-50%);background:var(--track);border-radius:999px;overflow:hidden;/* ensures only one colored bar can show */}
+    .fill{position:absolute;left:0;top:0;bottom:0;width:50%;background:var(--accent);/* solid blue */}
+    .thumb{position:absolute;top:50%;transform:translate(-50%,-50%);width:24px;height:24px;border-radius:999px;background:var(--thumb);box-shadow:0 2px 10px rgba(0,0,0,.18)}
     .score{display:flex;align-items:center;gap:10px;font-variant-numeric:tabular-nums}
     .score strong{font-size:20px}
     .card{background:white;border:1px solid #e5e7eb;border-radius:16px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,.04)}
@@ -37,8 +38,6 @@
     button{border:1px solid #d1d5db;background:white;border-radius:12px;padding:10px 14px;cursor:pointer}
     button.primary{background:var(--accent);border-color:var(--accent);color:white}
     .tiny{font-size:12px;color:#6b7280}
-    /* Hide the native range to prevent the 'second blue line' while keeping custom slider visuals */
-    #range{display:none}
     @media print{
       body{background:white;padding:0}
       .controls{display:none}
@@ -62,13 +61,11 @@
     <div class="center-label" id="centerLabel">Collaboration</div>
 
     <div class="slider-area" role="img" aria-label="Position between Human Generated and AI Generated">
-      <div class="track" aria-hidden="true"></div>
-      <div class="fill" id="fill" aria-hidden="true" style="width:50%"></div>
+      <div class="bar" aria-hidden="true">
+        <div class="fill" id="fill" aria-hidden="true"></div>
+      </div>
       <div class="thumb" id="thumb" style="left:50%"></div>
     </div>
-
-    <!-- Native mirror slider removed from visual flow to eliminate the second blue line -->
-    <input type="range" id="range" min="0" max="100" value="50" aria-hidden="true" aria-label="Attribution position (read-only)"/>
 
     <section class="card" aria-labelledby="inputsTitle">
       <h2 id="inputsTitle" style="margin-top:0;font-size:18px">Selections</h2>
@@ -176,8 +173,10 @@
       function update(pushHash=false){
         const s = Math.max(0, Math.min(100, computeAverage()));
         scoreOut.textContent = Math.round(s);
-        thumb.style.left = s + "%";
-        fill.style.width = s + "%";
+        // snap to integers for cleaner rendering to avoid 2-pixel anti-alias lines
+        const snapped = Math.round(s);
+        thumb.style.left = snapped + "%";
+        fill.style.width = snapped + "%";
         if(pushHash){
           const params = new URLSearchParams();
           for(const q of questions){
@@ -188,8 +187,7 @@
         }
       }
 
-      const qgrid = document.getElementById('questionGrid');
-      qgrid.addEventListener('change', e => {
+      document.getElementById('questionGrid').addEventListener('change', e => {
         if(e.target && e.target.matches('input[type="radio"][name^="q"]')) update(true);
       });
 
@@ -207,7 +205,6 @@
       });
 
       update(false);
-      window.__updateAttribution = update;
     }
     document.addEventListener('DOMContentLoaded', initAttribution);
   </script>
