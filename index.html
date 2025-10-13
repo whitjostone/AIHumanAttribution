@@ -15,7 +15,7 @@
     .center-label{display:flex;justify-content:center;margin:0 0 8px 0;font-weight:700;color:#374151}
     .slider-area{position:relative;margin:8px 0;height:56px}
     .bar{position:absolute;left:0;right:0;top:50%;height:10px;transform:translateY(-50%);background:var(--track);border-radius:999px;overflow:hidden;}
-    .fill{position:absolute;left:0;top:0;bottom:0;width:50%;background:var(--accent);}>
+    .fill{position:absolute;left:0;top:0;bottom:0;width:50%;background:var(--accent);}
     .thumb{position:absolute;top:50%;transform:translate(-50%,-50%);width:24px;height:24px;border-radius:999px;background:var(--thumb);box-shadow:0 2px 10px rgba(0,0,0,.18)}
     .score{display:flex;align-items:center;gap:10px;font-variant-numeric:tabular-nums}
     .score strong{font-size:20px}
@@ -34,13 +34,14 @@
     .disclosure{display:none;margin-top:12px}
     .disclosure label{font-weight:600;display:block;margin-bottom:6px}
     .disclosure textarea{width:100%;min-height:72px;border:1px solid #e5e7eb;border-radius:12px;padding:10px;background:#f9fafb}
+    footer{text-align:center;margin-top:24px;font-size:12px;color:#6b7280}
     @media print{ body{background:white;padding:0} .controls{display:none} .card{box-shadow:none} }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <img src="IJES masthead DEI.png" alt="International Journal of Exercise Science Logo" style="max-width:100%;height:auto;border-radius:12px;">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAYAAADYbSiyAAAABHNCSVQICAgIfAhkiAAAA..." alt="International Journal of Exercise Science Logo" style="max-width:100%;height:auto;border-radius:12px;">
       <h1>Human + AI Attribution Scale</h1>
       <div class="score">Score: <strong id="scoreOut">50</strong><span class="tiny">/100</span></div>
     </header>
@@ -120,7 +121,6 @@
     <div class="controls" style="margin-top:14px">
       <button class="primary" id="shareBtn" title="Copy a disclosure statement with a personalized link">Copy Manuscript-Ready Disclosure Statement</button>
       <button id="resetBtn" title="Reset all inputs">Reset</button>
-      <span class="tiny">Tip: Add this page’s link or QR code to your PDF for universal interactivity.</span>
     </div>
 
     <section id="disclosureBox" class="disclosure card" aria-live="polite">
@@ -131,6 +131,7 @@
       </div>
     </section>
 
+    <footer>This Scale was developed with the assistance of ChatGPT model 5, October 2025.</footer>
   </div>
 
   <script>
@@ -175,6 +176,18 @@
         return (wsum === 0) ? 50 : (sum / wsum);
       }
 
+      function applyFromHash(){
+        const params = new URLSearchParams(location.hash.slice(1));
+        for(const q of questions){
+          const val = params.get(q.name);
+          if(val){
+            const input = document.querySelector(`input[name='${q.name}'][value='${val}']`);
+            if(input) input.checked = true;
+          }
+        }
+        update(false);
+      }
+
       function update(pushHash=false){
         const s = Math.max(0, Math.min(100, computeAverage()));
         const snapped = Math.round(s);
@@ -201,20 +214,10 @@
         if(e.target && e.target.matches('input[type="radio"][name^="q"]')) update(true);
       });
 
-      shareBtn.addEventListener('click', async (event)=>{
-        // Ensure timestamp exists
+      shareBtn.addEventListener('click', async ()=>{
         if(!submissionTimestamp) submissionTimestamp = new Date();
+        update(true);
 
-        // Rebuild hash with current answers + timestamp
-        const params = new URLSearchParams();
-        for(const q of questions){
-          const v = getVal(q.name);
-          if(v != null) params.set(q.name, String(v));
-        }
-        params.set('ts', submissionTimestamp.toISOString());
-        history.replaceState(null,'','#'+params.toString());
-
-        // Build disclosure text with human-readable timestamp
         const pretty = submissionTimestamp.toLocaleString();
         const disclosure = `This article discloses use of Artificial Intelligence using IJES' Human + AI Attribution Scale, viewable at ${location.href}. Generated on ${pretty}.`;
 
@@ -225,7 +228,7 @@
           await navigator.clipboard.writeText(disclosure);
           const old = shareBtn.textContent; shareBtn.textContent = 'Disclosure copied!';
           setTimeout(()=> shareBtn.textContent = old, 1500);
-        }catch(e){ /* ignore clipboard failure */ }
+        }catch(e){}
       });
 
       copyDisclosureBtn.addEventListener('click', async ()=>{
@@ -233,7 +236,7 @@
           await navigator.clipboard.writeText(disclosureText.value);
           const old = copyDisclosureBtn.textContent; copyDisclosureBtn.textContent = 'Copied!';
           setTimeout(()=> copyDisclosureBtn.textContent = old, 1200);
-        }catch(e){ /* no-op */ }
+        }catch(e){}
       });
 
       resetBtn.addEventListener('click', ()=>{
@@ -241,10 +244,11 @@
         submissionTimestamp = null;
         disclosureText.value = '';
         disclosureBox.style.display = 'none';
+        history.replaceState(null,'','#');
         update(true);
       });
 
-      update(false);
+      applyFromHash();
     }
     document.addEventListener('DOMContentLoaded', initAttribution);
   </script>
