@@ -362,16 +362,6 @@ document.getElementById('copyDisclosureBtn')?.addEventListener('click', async ()
     }
 
     // Secondary copy button (delegated binding)
-    document.addEventListener('click', async (e)=>{
-      if(e.target && e.target.id === 'copyDisclosureBtn'){
-        const txt=document.getElementById('disclosureText');
-        if(!txt) return;
-        try{ await navigator.clipboard.writeText(txt.value); }catch(err){}
-        const old=e.target.textContent; e.target.textContent='Copied!';
-        setTimeout(()=> e.target.textContent=old, 1200);
-      }
-    });
-
     // Reset button
     if(resetBtn){
       resetBtn.onclick = function(){
@@ -405,6 +395,41 @@ document.getElementById('copyDisclosureBtn')?.addEventListener('click', async ()
   if(document.readyState === 'loading'){
     document.addEventListener('DOMContentLoaded', bind);
   }else{ bind(); }
+})();
+</script>
+
+
+<script>
+(function(){
+  function buildHashFromSelections(){
+    const params = new URLSearchParams();
+    for (let i=1; i<=6; i++){
+      const nm = 'q'+i;
+      const sel = document.querySelector(`input[name='${nm}']:checked`);
+      if (sel) params.set(nm, String(sel.value));
+    }
+    params.set('ts', new Date().toISOString());
+    return '#'+params.toString();
+  }
+  function regenerateDisclosure(){
+    // Rebuild hash from current selections, update URL
+    const newHash = buildHashFromSelections();
+    history.replaceState(null, '', newHash);
+    // Compose sentence (date BEFORE URL)
+    const pretty = new Date().toLocaleString();
+    return `This article discloses use of Artificial Intelligence using IJES' Human + AI Attribution Scale. Generated on ${pretty}, viewable at ${location.href}.`;
+  }
+  const copyBtn = document.getElementById('copyDisclosureBtn');
+  if (copyBtn){
+    copyBtn.onclick = async function(){
+      const sentence = regenerateDisclosure();
+      const textarea = document.getElementById('disclosureText');
+      if (textarea) textarea.value = sentence;
+      try { await navigator.clipboard.writeText(sentence); } catch(e){}
+      const old = this.textContent; this.textContent = 'Copied!';
+      setTimeout(()=> this.textContent = old, 1200);
+    };
+  }
 })();
 </script>
 
