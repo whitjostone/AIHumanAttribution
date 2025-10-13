@@ -41,7 +41,7 @@
 <body>
   <div class="wrap">
     <header>
-      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAYAAADYbSiyAAAABHNCSVQICAgIfAhkiAAAA..." alt="International Journal of Exercise Science Logo" style="max-width:100%;height:auto;border-radius:12px;">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABaAAAADwCAIAAAB5dFTPAAAACXBIWXMAAC...rHIAAAAASUVORK5CYII=" alt="International Journal of Exercise Science Logo" style="max-width:100%;height:auto;border-radius:12px;">
       <h1>Human + AI Attribution Scale</h1>
       <div class="score">Score: <strong id="scoreOut">50</strong><span class="tiny">/100</span></div>
     </header>
@@ -186,6 +186,11 @@
           }
         }
         update(false);
+      }'][value='${val}']`);
+            if(input) input.checked = true;
+          }
+        }
+        update(false);
       }
 
       function update(pushHash=false){
@@ -219,7 +224,7 @@
         update(true);
 
         const pretty = submissionTimestamp.toLocaleString();
-        const disclosure = `This article discloses use of Artificial Intelligence using IJES' Human + AI Attribution Scale, viewable at ${location.href}. Generated on ${pretty}.`;
+        const disclosure = `This article discloses use of Artificial Intelligence using IJES' Human + AI Attribution Scale. Generated on ${pretty}, viewable at ${location.href}.`;
 
         disclosureText.value = disclosure;
         disclosureBox.style.display = 'block';
@@ -251,6 +256,40 @@
       applyFromHash();
     }
     document.addEventListener('DOMContentLoaded', initAttribution);
+    // Reset-on-refresh, restore-on-fresh-navigation logic
+    document.addEventListener('DOMContentLoaded', ()=>{
+      try{
+        const nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+        const isReload = nav && nav.type === 'reload';
+        if(isReload){
+          // On reload, clear selections and remove hash so it starts blank
+          document.querySelectorAll('input[type="radio"]').forEach(i=> i.checked=false);
+          history.replaceState(null,'','#');
+          // Also clear any prior disclosure UI
+          const box = document.getElementById('disclosureBox');
+          const txt = document.getElementById('disclosureText');
+          if(box){ box.style.display='none'; }
+          if(txt){ txt.value=''; }
+        }else if(location.hash){
+          // On normal navigation with a hash, prefill from the hash
+          const apply = () => {
+            const params = new URLSearchParams(location.hash.slice(1));
+            for(const q of [{name:'q1'},{name:'q2'},{name:'q3'},{name:'q4'},{name:'q5'},{name:'q6'}]){
+              const val = params.get(q.name);
+              if(val){
+                const input = document.querySelector(`input[name='${q.name}'][value='${val}']`);
+                if(input) input.checked = true;
+              }
+            }
+            // reflect into UI
+            const evt = new Event('change', {bubbles:true});
+            const any = document.querySelector('input[type="radio"]');
+            if(any) any.dispatchEvent(evt);
+          };
+          apply();
+        }
+      }catch(e){ /* no-op */ }
+    });
   </script>
 </body>
 </html>
