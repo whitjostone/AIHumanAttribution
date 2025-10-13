@@ -228,6 +228,8 @@
 
         disclosureText.value = disclosure;
         disclosureBox.style.display = 'block';
+        // Bring the disclosure into view for the author
+        try { disclosureBox.scrollIntoView({behavior:'smooth', block:'start'}); } catch(e) {}
 
         try{
           await navigator.clipboard.writeText(disclosure);
