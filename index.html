@@ -213,5 +213,58 @@
 This Scale was developed with the assistance of ChatGPT model 5, October 2025.
 </footer>
 
+
+<script>
+(function(){
+  // Apply q1..q6 from URL hash if present, and update the slider score accordingly
+  function getParamMap(){
+    try { return new URLSearchParams(location.hash.slice(1)); } catch(e){ return null; }
+  }
+  function setCheckedFromHash(){
+    const params = getParamMap(); if(!params) return false;
+    let touched = false;
+    for (let i=1;i<=6;i++){
+      const nm = 'q'+i;
+      const val = params.get(nm);
+      if(!val) continue;
+      const input = document.querySelector(`input[name='${nm}'][value='${val}']`);
+      if(input){ input.checked = true; touched = true; }
+    }
+    return touched;
+  }
+  function recomputeWeighted(){
+    const weights = {q1:1,q2:1,q3:2,q4:1,q5:2,q6:1};
+    let sum=0, wsum=0;
+    for (let i=1;i<=6;i++){
+      const nm = 'q'+i;
+      const sel = document.querySelector(`input[name='${nm}']:checked`);
+      if(!sel) continue;
+      const v = Number(sel.value);
+      const w = weights[nm] || 1;
+      sum += v * w; wsum += w;
+    }
+    const s = (wsum===0) ? 50 : Math.max(0, Math.min(100, sum/wsum));
+    const snapped = Math.round(s);
+    const scoreOut = document.getElementById('scoreOut');
+    const fill = document.getElementById('fill');
+    const thumb = document.getElementById('thumb');
+    if(scoreOut) scoreOut.textContent = String(snapped);
+    if(fill) fill.style.width = snapped + '%';
+    if(thumb) thumb.style.left = snapped + '%';
+  }
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const filled = setCheckedFromHash();
+    if(filled) recomputeWeighted();
+    // Also update live when the user changes any selection
+    const grid = document.getElementById('questionGrid') || document.body;
+    grid.addEventListener('change', (e)=>{
+      if(e.target && e.target.matches && e.target.matches('input[type="radio"][name^="q"]')){
+        recomputeWeighted();
+      }
+    });
+  });
+})();
+</script>
+
 </body>
 </html>
