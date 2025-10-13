@@ -115,7 +115,7 @@
     </section>
 
     <div class="controls" style="margin-top:14px">
-      <button class="primary" id="shareBtn" title="Copy a shareable URL with your current state">Copy shareable link</button>
+      <button class="primary" id="shareBtn" title="Copy a shareable URL with your current state">Copy Manuscript-Ready Disclosure Statement</button>
       <button id="resetBtn" title="Reset all inputs">Reset</button>
       <span class="tiny">Tip: Add this page’s link or QR code to your PDF for universal interactivity.</span>
     </div>
@@ -167,12 +167,40 @@
         if(e.target && e.target.matches('input[type="radio"][name^="q"]')) update(true);
       });
       document.getElementById('shareBtn').addEventListener('click', async (event)=>{
-        try{
-          await navigator.clipboard.writeText(location.href);
-          const t = event.target; const old = t.textContent; t.textContent = 'Link copied!';
-          setTimeout(()=> t.textContent = old, 1500);
-        }catch(e){ alert('Could not copy. Manually copy this URL:\n'+location.href); }
-      });
+        // Build/keep timestamp for disclosure
+        if (typeof submissionTimestamp === 'undefined' || !submissionTimestamp) {
+          try { submissionTimestamp = new Date(); } catch(e) { var submissionTimestamp = new Date(); }
+        }
+        // Rebuild the hash to reflect current answers if possible
+        try {
+          const params = new URLSearchParams(location.hash.slice(1));
+          // Attempt to enumerate inputs named q1..q6 (if present)
+          for (let i=1; i<=6; i++) {
+            const nm = 'q'+i;
+            const sel = document.querySelector(`input[name="${nm}"]:checked`);
+            if (sel) params.set(nm, String(sel.value));
+          }
+          if (submissionTimestamp) params.set('ts', submissionTimestamp.toISOString());
+          history.replaceState(null,'','#'+params.toString());
+        } catch(e) {}
+
+        // Compose disclosure sentence with date BEFORE URL
+        try {
+          const pretty = submissionTimestamp.toLocaleString();
+          const disclosure = `This article discloses use of Artificial Intelligence using IJES' Human + AI Attribution Scale. Generated on ${pretty}, viewable at ${location.href}.`;
+          const disclosureBox = document.getElementById('disclosureBox');
+          const disclosureText = document.getElementById('disclosureText');
+          if (disclosureText) disclosureText.value = disclosure;
+          if (disclosureBox) {
+            disclosureBox.style.display = 'block';
+            try { disclosureBox.scrollIntoView({behavior:'smooth', block:'start'}); } catch(e) {}
+          }
+          // Copy to clipboard and give feedback
+          try { await navigator.clipboard.writeText(disclosure); } catch(e) {}
+          const btn = document.getElementById('shareBtn');
+          if (btn) { const old = btn.textContent; btn.textContent = 'Disclosure copied!'; setTimeout(()=> btn.textContent = old, 1500); }
+        } catch(e) {}
+    });
       document.getElementById('resetBtn').addEventListener('click', ()=>{
         document.querySelectorAll('input[type="radio"]').forEach(i=> i.checked=false);
         update(true);
