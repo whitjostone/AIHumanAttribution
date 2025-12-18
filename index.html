@@ -289,7 +289,7 @@ document.addEventListener('change', () => {
   // Citation-ready disclosure paragraph
   disclosure.innerHTML = `<strong>AI Attribution Disclosure:</strong><br>
   Manuscript development reflected a ${category.toLowerCase()} authorship approach (overall attribution score: ${score}/100, based on a 4-point ordinal rubric). 
-  Stage-level attributions: ${phrases.join('; ')}.`;
+  Selections given during disclosure: (${phrases.map((p,i)=>`(${i+1}) ${p.replace('—',' : ').replace('AI Created — No changes made','AI Created with no changes').replace('AI Created — Human validated','AI Created with Human Validation').replace('Human Created — AI revised','Human Created with AI revisions').replace('Human Created — No AI input','Human Created with no AI input')}`).join('; ')})`;
 });
 </script>
 </body>
