@@ -31,7 +31,8 @@ h1{margin:0;font-size:clamp(22px,3vw,34px)}
   padding:20px;
   box-shadow:0 2px 10px rgba(0,0,0,.04);
 }
-.topic{font-size:18px;font-weight:700;margin-bottom:8px}
+.topic{font-size:18px;font-weight:700;margin-bottom:4px}
+.desc{font-size:13px;color:var(--muted);margin:0 0 10px 0;text-align:center}
 
 /* 4-option radio grid */
 .radio-row{
@@ -93,8 +94,9 @@ h1{margin:0;font-size:clamp(22px,3vw,34px)}
 
 <div class="card">
 
-<div class="topic">Literature review</div>
-<div class="radio-row" data-label="Literature review">
+<div class="topic">Literature Review</div>
+<p class="desc">Search, review, and synthesis of existing literature in the field.</p>
+<div class="radio-row" data-label="Literature Review">
   <input type="radio" name="literature" id="literature-0" value="0">
   <label for="literature-0" title="AI generated text used verbatim. Example: ChatGPT-written literature review with no edits.">
     <h3>AI Created</h3><p>No changes made</p>
@@ -117,6 +119,7 @@ h1{margin:0;font-size:clamp(22px,3vw,34px)}
 </div>
 <hr style="margin:18px 0">
 <div class="topic">Methods</div>
+<p class="desc">Study design, participant/sample details, procedures, measures, and protocols enabling replication.</p>
 <div class="radio-row" data-label="Methods">
   <input type="radio" name="methods" id="methods-0" value="0">
   <label for="methods-0" title="AI generated methods used verbatim. Example: AI wrote methods and it was pasted without edits.">
@@ -140,6 +143,7 @@ h1{margin:0;font-size:clamp(22px,3vw,34px)}
 </div>
 <hr style="margin:18px 0">
 <div class="topic">Statistical analysis</div>
+<p class="desc">Selection, execution, and reporting of statistical tests/models, assumptions, and analytic decisions.</p>
 <div class="radio-row" data-label="Statistical analysis">
   <input type="radio" name="stats" id="stats-0" value="0">
   <label for="stats-0" title="AI generated analysis plan/code description used verbatim. Example: AI wrote analysis section with no edits.">
@@ -162,8 +166,9 @@ h1{margin:0;font-size:clamp(22px,3vw,34px)}
   </label>
 </div>
 <hr style="margin:18px 0">
-<div class="topic">Results & interpretation</div>
-<div class="radio-row" data-label="Results & interpretation">
+<div class="topic">Results & Interpretation</div>
+<p class="desc">Presentation of findings (tables/figures/narrative) and interpretation of outcomes relative to hypotheses.</p>
+<div class="radio-row" data-label="Results & Interpretation">
   <input type="radio" name="results" id="results-0" value="0">
   <label for="results-0" title="AI generated results narrative used verbatim. Example: AI drafted results interpretation without edits.">
     <h3>AI Created</h3><p>No changes made</p>
@@ -186,6 +191,7 @@ h1{margin:0;font-size:clamp(22px,3vw,34px)}
 </div>
 <hr style="margin:18px 0">
 <div class="topic">Discussion</div>
+<p class="desc">Integration of findings with prior work, implications, limitations, and future directions.</p>
 <div class="radio-row" data-label="Discussion">
   <input type="radio" name="discussion" id="discussion-0" value="0">
   <label for="discussion-0" title="AI generated discussion used verbatim. Example: AI wrote discussion section with no edits.">
@@ -209,6 +215,7 @@ h1{margin:0;font-size:clamp(22px,3vw,34px)}
 </div>
 <hr style="margin:18px 0">
 <div class="topic">Writing and editing</div>
+<p class="desc">Drafting, revising, and polishing manuscript text for clarity, style, structure, and consistency.</p>
 <div class="radio-row" data-label="Writing and editing">
   <input type="radio" name="writing" id="writing-0" value="0">
   <label for="writing-0" title="AI generated prose edits applied verbatim. Example: AI rewrote paragraphs and changes were accepted as-is.">
