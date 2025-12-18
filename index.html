@@ -28,7 +28,53 @@
     .radio-row label{flex:1;text-align:left;padding:10px 12px;border:1px solid #e5e7eb;border-radius:12px;background:#f9fafb;cursor:pointer;user-select:none;line-height:1.25}
     .radio-row input{display:none}
     .radio-row input:checked + label{border-color:#bfdbfe;background:#eff6ff}
-    .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    
+    .radio-row label{position:relative}
+    .radio-row h3{margin:0 0 4px 0;font-size:16px;font-weight:700;color:#111827}
+    .radio-row p{margin:0;font-size:13px;color:#6b7280}
+    /* Tooltip (pure CSS) */
+    .radio-row label[data-tip]::after{
+      content: attr(data-tip);
+      position:absolute;
+      left:50%;
+      bottom:calc(100% + 10px);
+      transform:translateX(-50%);
+      max-width:280px;
+      width:max-content;
+      padding:8px 10px;
+      border:1px solid #e5e7eb;
+      border-radius:10px;
+      background:#ffffff;
+      color:#111827;
+      box-shadow:0 6px 18px rgba(0,0,0,.10);
+      font-size:12px;
+      line-height:1.25;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .12s ease;
+      z-index:20;
+      white-space:normal;
+    }
+    .radio-row label[data-tip]::before{
+      content:"";
+      position:absolute;
+      left:50%;
+      bottom:calc(100% + 4px);
+      transform:translateX(-50%);
+      border:6px solid transparent;
+      border-top-color:#e5e7eb;
+      opacity:0;
+      transition:opacity .12s ease;
+      z-index:21;
+    }
+    .radio-row label[data-tip]:hover::after,
+    .radio-row label[data-tip]:hover::before,
+    .radio-row label[data-tip]:focus::after,
+    .radio-row label[data-tip]:focus::before{
+      opacity:1;
+    }
+
+.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
     button{border:1px solid #d1d5db;background:white;border-radius:12px;padding:10px 14px;cursor:pointer}
     button.primary{background:var(--accent);border-color:var(--accent);color:white}
     @media print{ body{background:white;padding:0} .controls{display:none} .card{box-shadow:none} }
@@ -61,54 +107,42 @@
         <span class="tiny">Use refers to AI tools assisting in locating, summarizing, or synthesizing prior research or literature themes.</span>
         <span class="weight">Weight: 1</span>
         <div class="radio-row">
-          <input type="radio" id="q1a" name="q1" value="100" /><label for="q1a">Yes, without revision</label>
-          <input type="radio" id="q1b" name="q1" value="50" /><label for="q1b">Yes, with revision and validation</label>
-          <input type="radio" id="q1c" name="q1" value="0" /><label for="q1c">No</label>
-        </div>
-
-        <div class="topic">2. Was AI used to develop language presented in the submission?</div>
-        <span class="tiny">Use refers to AI-generated phrasing, grammar, or rewriting of sentences, paragraphs, or sections.</span>
-        <span class="weight">Weight: 1</span>
-        <div class="radio-row">
-          <input type="radio" id="q2a" name="q2" value="100" /><label for="q2a">Yes, without revision</label>
-          <input type="radio" id="q2b" name="q2" value="50" /><label for="q2b">Yes, with revision and validation</label>
-          <input type="radio" id="q2c" name="q2" value="0" /><label for="q2c">No</label>
-        </div>
-
-        <div class="topic">3. Was AI used in data evaluation?</div>
-        <span class="tiny">Use refers to AI assisting in interpreting data, identifying trends, performing statistical analysis, or validating results.</span>
-        <span class="weight">Weight: 2</span>
-        <div class="radio-row">
-          <input type="radio" id="q3a" name="q3" value="100" /><label for="q3a">Yes, without revision</label>
-          <input type="radio" id="q3b" name="q3" value="50" /><label for="q3b">Yes, with revision and validation</label>
-          <input type="radio" id="q3c" name="q3" value="0" /><label for="q3c">No</label>
-        </div>
-
-        <div class="topic">4. Was AI used for idea generation (outlines, prompts, brainstorming)?</div>
-        <span class="tiny">Use refers to AI suggesting research topics, experiment designs, structure outlines, or discussion points.</span>
-        <span class="weight">Weight: 1</span>
-        <div class="radio-row">
-          <input type="radio" id="q4a" name="q4" value="100" /><label for="q4a">Yes, without revision</label>
-          <input type="radio" id="q4b" name="q4" value="50" /><label for="q4b">Yes, with revision and validation</label>
-          <input type="radio" id="q4c" name="q4" value="0" /><label for="q4c">No</label>
-        </div>
-
-        <div class="topic">5. Was AI used for code/statistical drafting or analysis scripting?</div>
-        <span class="tiny">Use refers to AI generating programming code, statistical models, or analysis scripts for data handling.</span>
-        <span class="weight">Weight: 2</span>
-        <div class="radio-row">
-          <input type="radio" id="q5a" name="q5" value="100" /><label for="q5a">Yes, without revision</label>
-          <input type="radio" id="q5b" name="q5" value="50" /><label for="q5b">Yes, with revision and validation</label>
-          <input type="radio" id="q5c" name="q5" value="0" /><label for="q5c">No</label>
-        </div>
-
-        <div class="topic">6. Was AI used for citation management (discovering, formatting, or summarizing references)?</div>
-        <span class="tiny">Use refers to AI identifying relevant sources, formatting citations, or summarizing article content for references.</span>
-        <span class="weight">Weight: 1</span>
-        <div class="radio-row">
-          <input type="radio" id="q6a" name="q6" value="100" /><label for="q6a">Yes, without revision</label>
-          <input type="radio" id="q6b" name="q6" value="50" /><label for="q6b">Yes, with revision and validation</label>
-          <input type="radio" id="q6c" name="q6" value="0" /><label for="q6c">No</label>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          <input type="radio" id="q6a" name="q6" value="0" data-short="Human Created — No AI input" data-title="Human Created" data-desc="No AI input" data-example="Example: The authors wrote the content entirely without using AI tools.">
+          <label for="q6a" tabindex="0" data-tip="Example: The authors wrote the content entirely without using AI tools.">
+            <h3>Human Created</h3>
+            <p>No AI input</p>
+          </label>
+        
+          <input type="radio" id="q6b" name="q6" value="1" data-short="Human Created — AI revised" data-title="Human Created" data-desc="AI revised" data-example="Example: The authors wrote the content; AI was used to revise wording/grammar; authors reviewed and approved.">
+          <label for="q6b" tabindex="0" data-tip="Example: The authors wrote the content; AI was used to revise wording/grammar; authors reviewed and approved.">
+            <h3>Human Created</h3>
+            <p>AI revised</p>
+          </label>
+        
+          <input type="radio" id="q6c" name="q6" value="2" data-short="AI Created — Human validated" data-title="AI Created" data-desc="Human validated" data-example="Example: AI drafted the content; authors validated facts, edited, and approved the final version.">
+          <label for="q6c" tabindex="0" data-tip="Example: AI drafted the content; authors validated facts, edited, and approved the final version.">
+            <h3>AI Created</h3>
+            <p>Human validated</p>
+          </label>
+        
+          <input type="radio" id="q6d" name="q6" value="3" data-short="AI Created — No changes made" data-title="AI Created" data-desc="No changes made" data-example="Example: AI-generated content was used verbatim without human revision (beyond selection/placement).">
+          <label for="q6d" tabindex="0" data-tip="Example: AI-generated content was used verbatim without human revision (beyond selection/placement).">
+            <h3>AI Created</h3>
+            <p>No changes made</p>
+          </label>
+        
         </div>
 
       </div>
@@ -231,17 +265,31 @@ This Scale was developed with the assistance of ChatGPT model 5, October 2025.
     }
     return touched;
   }
+  
   function recomputeWeighted(){
     const weights = {q1:1,q2:1,q3:2,q4:1,q5:2,q6:1};
+    const MAX_ORD = 3; // 0..3 ordinal
     let sum=0, wsum=0;
     for (let i=1;i<=6;i++){
       const nm = 'q'+i;
       const sel = document.querySelector(`input[name='${nm}']:checked`);
       if(!sel) continue;
-      const v = Number(sel.value);
+      const ord = Math.max(0, Math.min(MAX_ORD, Number(sel.value)||0));
+      const pct = (ord / MAX_ORD) * 100;
       const w = weights[nm] || 1;
-      sum += v * w; wsum += w;
+      sum += pct * w;
+      wsum += w;
     }
+    const s = (wsum===0) ? 50 : Math.max(0, Math.min(100, sum/wsum));
+    const snapped = Math.round(s);
+    const scoreOut=document.getElementById('scoreOut');
+    const fill=document.getElementById('fill');
+    const thumb=document.getElementById('thumb');
+    if(scoreOut) scoreOut.textContent=String(snapped);
+    if(fill) fill.style.width=snapped+'%';
+    if(thumb) thumb.style.left=snapped+'%';
+  }
+
     const s = (wsum===0) ? 50 : Math.max(0, Math.min(100, sum/wsum));
     const snapped = Math.round(s);
     const scoreOut = document.getElementById('scoreOut');
@@ -328,14 +376,60 @@ document.getElementById('copyDisclosureBtn')?.addEventListener('click', async ()
     }
     return {box, txt};
   }
+  
   function generateDisclosure(){
     const now=new Date();
     const pretty=now.toLocaleString();
-    // Update URL hash to contain latest answers
+
+    const stageNames = {
+      q1: 'Literature review',
+      q2: 'Manuscript language',
+      q3: 'Data evaluation',
+      q4: 'Figure/table creation',
+      q5: 'Statistical analysis',
+      q6: 'Peer-review response'
+    };
+
+    const MAX_ORD = 3;
+    const weights = {q1:1,q2:1,q3:2,q4:1,q5:2,q6:1};
+
+    // Compute weighted percent and collect stage selections
+    let sum=0, wsum=0;
+    const stageParts=[];
+    for(let i=1;i<=6;i++){
+      const nm='q'+i;
+      const sel=document.querySelector(`input[name='${nm}']:checked`);
+      if(!sel) continue;
+      const ord = Math.max(0, Math.min(MAX_ORD, Number(sel.value)||0));
+      const pct = (ord / MAX_ORD) * 100;
+      const w = weights[nm] || 1;
+      sum += pct * w; wsum += w;
+
+      const short = sel.getAttribute('data-short') || '';
+      const stage = stageNames[nm] || nm;
+      stageParts.push(`${stage}—${short}`);
+    }
+    const overallPct = (wsum===0) ? 50 : Math.max(0, Math.min(100, sum/wsum));
+    const overallOrd = Math.round((overallPct/100) * MAX_ORD);
+
+    const categoryMap = {
+      0: 'Human Created — No AI input',
+      1: 'Human Created — AI revised',
+      2: 'AI Created — Human validated',
+      3: 'AI Created — No changes made'
+    };
+    const category = categoryMap[overallOrd] || 'Collaboration (mixed)';
+
+    // Update URL hash to contain latest answers (+ timestamp)
     const newHash=buildHash();
     history.replaceState(null,'',newHash);
-    return `This article discloses use of Artificial Intelligence using IJES' Human + AI Attribution Scale. Generated on ${pretty}, viewable at ${location.href}.`;
+
+    const rubric = '4-point ordinal (0=Human Created—No AI input; 1=Human Created—AI revised; 2=AI Created—Human validated; 3=AI Created—No changes made)';
+    const stageText = stageParts.length ? ` Stage attributions: ${stageParts.join('; ')}.` : '';
+
+    return `This article discloses use of Artificial Intelligence using IJES' Human + AI Attribution Scale (${rubric}). Overall weighted AI involvement score: ${Math.round(overallPct)}/100 (category: ${category}).${stageText} Generated on ${pretty}, viewable at ${location.href}.`;
   }
+
   function bind(){
     const shareBtn=document.getElementById('shareBtn');
     const resetBtn=document.getElementById('resetBtn');
@@ -361,7 +455,18 @@ document.getElementById('copyDisclosureBtn')?.addEventListener('click', async ()
       };
     }
 
-    // Secondary copy button (delegated binding)
+    // Secondary copy button
+    const copyBtn=document.getElementById('copyDisclosureBtn');
+    if(copyBtn){
+      copyBtn.onclick = async function(){
+        const txt=document.getElementById('disclosureText');
+        const val = (txt && txt.value) ? txt.value : generateDisclosure();
+        try{ await navigator.clipboard.writeText(val); }catch(e){}
+        const old=this.textContent; this.textContent='Copied!';
+        setTimeout(()=> this.textContent=old, 1200);
+      };
+    }
+
     // Reset button
     if(resetBtn){
       resetBtn.onclick = function(){
