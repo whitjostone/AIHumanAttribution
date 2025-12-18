@@ -2,29 +2,38 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Human + AI Attribution Scale (4‑Point Ordinal)</title>
+<title>Human + AI Attribution Scale (4-Point Ordinal)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
+:root {
+  --accent:#2563eb;
+  --border:#e5e7eb;
+  --bg:#fafafa;
+  --card:#ffffff;
+  --muted:#6b7280;
+}
 body{
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-  background:#fafafa;
+  background:var(--bg);
   color:#111827;
   margin:0;
   padding:24px;
 }
-.wrap{max-width:1000px;margin:0 auto;}
-h1{text-align:center;margin-bottom:6px}
+.wrap{max-width:1100px;margin:0 auto;}
+header{text-align:center;margin-bottom:14px}
+h1{margin:0;font-size:clamp(22px,3vw,34px)}
+.sub{margin:6px 0 0 0;color:var(--muted);font-size:14px}
 .card{
-  background:#fff;
-  border:1px solid #e5e7eb;
+  background:var(--card);
+  border:1px solid var(--border);
   border-radius:16px;
   padding:20px;
   box-shadow:0 2px 10px rgba(0,0,0,.04);
 }
 .topic{font-size:18px;font-weight:700;margin-bottom:8px}
 
-/* radio grid */
+/* 4-option radio grid */
 .radio-row{
   display:grid;
   grid-template-columns:repeat(4,1fr);
@@ -34,22 +43,24 @@ h1{text-align:center;margin-bottom:6px}
 .radio-row label{
   text-align:center;
   padding:14px 12px;
-  border:1px solid #e5e7eb;
+  border:1px solid var(--border);
   border-radius:12px;
   background:#f9fafb;
   cursor:pointer;
+  user-select:none;
 }
 .radio-row h3{
   margin:0 0 6px 0;
   font-size:16px;
+  font-weight:700;
 }
 .radio-row p{
   margin:0;
   font-size:13px;
-  color:#6b7280;
+  color:var(--muted);
 }
 .radio-row input:checked + label{
-  border-color:#2563eb;
+  border-color:var(--accent);
   background:#eff6ff;
 }
 
@@ -60,81 +71,191 @@ h1{text-align:center;margin-bottom:6px}
   border-radius:12px;
   background:#fff;
   font-size:14px;
+  line-height:1.35;
+}
+.smallnote{margin-top:8px;color:var(--muted);font-size:12px;text-align:center}
+@media (max-width: 860px) {
+  .radio-row{grid-template-columns:1fr 1fr}
+}
+@media print {
+  body{background:#fff;padding:0}
+  .smallnote{display:none}
 }
 </style>
 </head>
 
 <body>
 <div class="wrap">
-<h1>Human + AI Attribution Scale</h1>
+<header>
+  <h1>Human + AI Attribution Scale</h1>
+  <div class="sub">Select one option per stage. Hover (or long-press on mobile) to see examples.</div>
+</header>
 
 <div class="card">
 
-<div class="topic">Literature Review</div>
+<div class="topic">Literature review</div>
 <div class="radio-row" data-label="Literature review">
-  <input type="radio" name="lit" id="lit0" value="0">
-  <label for="lit0" title="AI generated text used verbatim. Example: ChatGPT-written literature review with no edits.">
+  <input type="radio" name="literature" id="literature-0" value="0">
+  <label for="literature-0" title="AI generated text used verbatim. Example: ChatGPT-written literature review with no edits.">
     <h3>AI Created</h3><p>No changes made</p>
   </label>
 
-  <input type="radio" name="lit" id="lit1" value="1">
-  <label for="lit1" title="AI generated draft reviewed for accuracy. Example: AI draft with fact-checking only.">
+  <input type="radio" name="literature" id="literature-1" value="1">
+  <label for="literature-1" title="AI generated draft reviewed for accuracy. Example: AI draft with fact-checking only.">
     <h3>AI Created</h3><p>Human validated</p>
   </label>
 
-  <input type="radio" name="lit" id="lit2" value="2">
-  <label for="lit2" title="Human-written content refined with AI. Example: Grammar or clarity edits via AI.">
+  <input type="radio" name="literature" id="literature-2" value="2">
+  <label for="literature-2" title="Human-written content refined with AI. Example: Grammar or clarity edits via AI.">
     <h3>Human Created</h3><p>AI revised</p>
   </label>
 
-  <input type="radio" name="lit" id="lit3" value="3">
-  <label for="lit3" title="Fully human-written with no AI involvement.">
+  <input type="radio" name="literature" id="literature-3" value="3">
+  <label for="literature-3" title="Fully human-written with no AI involvement. Example: Fully human-written section.">
+    <h3>Human Created</h3><p>No AI input</p>
+  </label>
+</div>
+<hr style="margin:18px 0">
+<div class="topic">Methods</div>
+<div class="radio-row" data-label="Methods">
+  <input type="radio" name="methods" id="methods-0" value="0">
+  <label for="methods-0" title="AI generated methods used verbatim. Example: AI wrote methods and it was pasted without edits.">
+    <h3>AI Created</h3><p>No changes made</p>
+  </label>
+
+  <input type="radio" name="methods" id="methods-1" value="1">
+  <label for="methods-1" title="AI-generated methods validated by a human. Example: AI draft checked for accuracy/consistency.">
+    <h3>AI Created</h3><p>Human validated</p>
+  </label>
+
+  <input type="radio" name="methods" id="methods-2" value="2">
+  <label for="methods-2" title="Human-written methods revised with AI. Example: AI used to tighten wording or improve readability.">
+    <h3>Human Created</h3><p>AI revised</p>
+  </label>
+
+  <input type="radio" name="methods" id="methods-3" value="3">
+  <label for="methods-3" title="Human-written methods with no AI input.">
+    <h3>Human Created</h3><p>No AI input</p>
+  </label>
+</div>
+<hr style="margin:18px 0">
+<div class="topic">Statistical analysis</div>
+<div class="radio-row" data-label="Statistical analysis">
+  <input type="radio" name="stats" id="stats-0" value="0">
+  <label for="stats-0" title="AI generated analysis plan/code description used verbatim. Example: AI wrote analysis section with no edits.">
+    <h3>AI Created</h3><p>No changes made</p>
+  </label>
+
+  <input type="radio" name="stats" id="stats-1" value="1">
+  <label for="stats-1" title="AI generated analysis plan validated by a human. Example: Human checked appropriateness/assumptions.">
+    <h3>AI Created</h3><p>Human validated</p>
+  </label>
+
+  <input type="radio" name="stats" id="stats-2" value="2">
+  <label for="stats-2" title="Human-created analysis plan revised with AI. Example: AI helped clarify reporting or polish code comments.">
+    <h3>Human Created</h3><p>AI revised</p>
+  </label>
+
+  <input type="radio" name="stats" id="stats-3" value="3">
+  <label for="stats-3" title="Human-created analysis plan with no AI input.">
+    <h3>Human Created</h3><p>No AI input</p>
+  </label>
+</div>
+<hr style="margin:18px 0">
+<div class="topic">Results & interpretation</div>
+<div class="radio-row" data-label="Results & interpretation">
+  <input type="radio" name="results" id="results-0" value="0">
+  <label for="results-0" title="AI generated results narrative used verbatim. Example: AI drafted results interpretation without edits.">
+    <h3>AI Created</h3><p>No changes made</p>
+  </label>
+
+  <input type="radio" name="results" id="results-1" value="1">
+  <label for="results-1" title="AI-generated results narrative validated by a human. Example: Human checked accuracy against outputs.">
+    <h3>AI Created</h3><p>Human validated</p>
+  </label>
+
+  <input type="radio" name="results" id="results-2" value="2">
+  <label for="results-2" title="Human-created results narrative revised with AI. Example: AI used for clarity, structure, or grammar.">
+    <h3>Human Created</h3><p>AI revised</p>
+  </label>
+
+  <input type="radio" name="results" id="results-3" value="3">
+  <label for="results-3" title="Human-created results narrative with no AI input.">
+    <h3>Human Created</h3><p>No AI input</p>
+  </label>
+</div>
+<hr style="margin:18px 0">
+<div class="topic">Discussion</div>
+<div class="radio-row" data-label="Discussion">
+  <input type="radio" name="discussion" id="discussion-0" value="0">
+  <label for="discussion-0" title="AI generated discussion used verbatim. Example: AI wrote discussion section with no edits.">
+    <h3>AI Created</h3><p>No changes made</p>
+  </label>
+
+  <input type="radio" name="discussion" id="discussion-1" value="1">
+  <label for="discussion-1" title="AI-generated discussion validated by a human. Example: Human checked claims, citations, and tone.">
+    <h3>AI Created</h3><p>Human validated</p>
+  </label>
+
+  <input type="radio" name="discussion" id="discussion-2" value="2">
+  <label for="discussion-2" title="Human-written discussion revised with AI. Example: AI used to improve flow or concision.">
+    <h3>Human Created</h3><p>AI revised</p>
+  </label>
+
+  <input type="radio" name="discussion" id="discussion-3" value="3">
+  <label for="discussion-3" title="Human-written discussion with no AI input.">
+    <h3>Human Created</h3><p>No AI input</p>
+  </label>
+</div>
+<hr style="margin:18px 0">
+<div class="topic">Writing and editing</div>
+<div class="radio-row" data-label="Writing and editing">
+  <input type="radio" name="writing" id="writing-0" value="0">
+  <label for="writing-0" title="AI generated prose edits applied verbatim. Example: AI rewrote paragraphs and changes were accepted as-is.">
+    <h3>AI Created</h3><p>No changes made</p>
+  </label>
+
+  <input type="radio" name="writing" id="writing-1" value="1">
+  <label for="writing-1" title="AI edits validated by a human. Example: AI suggestions reviewed and selectively applied.">
+    <h3>AI Created</h3><p>Human validated</p>
+  </label>
+
+  <input type="radio" name="writing" id="writing-2" value="2">
+  <label for="writing-2" title="Human writing revised with AI. Example: AI used for grammar/clarity suggestions on a human draft.">
+    <h3>Human Created</h3><p>AI revised</p>
+  </label>
+
+  <input type="radio" name="writing" id="writing-3" value="3">
+  <label for="writing-3" title="Human writing and editing with no AI input.">
     <h3>Human Created</h3><p>No AI input</p>
   </label>
 </div>
 
-<hr style="margin:18px 0">
-
-<div class="topic">Methods & Design</div>
-<div class="radio-row" data-label="Methods">
-  <input type="radio" name="methods" id="m0" value="0">
-  <label for="m0"><h3>AI Created</h3><p>No changes made</p></label>
-
-  <input type="radio" name="methods" id="m1" value="1">
-  <label for="m1"><h3>AI Created</h3><p>Human validated</p></label>
-
-  <input type="radio" name="methods" id="m2" value="2">
-  <label for="m2"><h3>Human Created</h3><p>AI revised</p></label>
-
-  <input type="radio" name="methods" id="m3" value="3">
-  <label for="m3"><h3>Human Created</h3><p>No AI input</p></label>
-</div>
-
-<hr style="margin:18px 0">
-
-<div class="topic">Writing & Editing</div>
-<div class="radio-row" data-label="Writing and editing">
-  <input type="radio" name="writing" id="w0" value="0">
-  <label for="w0"><h3>AI Created</h3><p>No changes made</p></label>
-
-  <input type="radio" name="writing" id="w1" value="1">
-  <label for="w1"><h3>AI Created</h3><p>Human validated</p></label>
-
-  <input type="radio" name="writing" id="w2" value="2">
-  <label for="w2"><h3>Human Created</h3><p>AI revised</p></label>
-
-  <input type="radio" name="writing" id="w3" value="3">
-  <label for="w3"><h3>Human Created</h3><p>No AI input</p></label>
-</div>
 
 <div id="disclosure">Select an option for each section to generate a disclosure sentence.</div>
-
+<div class="smallnote">Ordinal weights: 0=AI Created (No changes), 1=AI Created (Human validated), 2=Human Created (AI revised), 3=Human Created (No AI input).</div>
 </div>
 </div>
 
 <script>
-const rows = document.querySelectorAll('.radio-row');
+const rows = Array.from(document.querySelectorAll('.radio-row'));
 const disclosure = document.getElementById('disclosure');
+
+function labelForValue(v){
+  switch(String(v)){
+    case '0': return 'AI Created — No changes made';
+    case '1': return 'AI Created — Human validated';
+    case '2': return 'Human Created — AI revised';
+    case '3': return 'Human Created — No AI input';
+    default: return '';
+  }
+}
+
+function categoryFromScore(score){
+  if (score < 34) return 'AI-led';
+  if (score < 67) return 'Mixed';
+  return 'Human-led';
+}
 
 document.addEventListener('change', () => {
   let values = [];
@@ -142,25 +263,27 @@ document.addEventListener('change', () => {
 
   rows.forEach(row => {
     const checked = row.querySelector('input:checked');
-    if(checked){
+    const stage = row.dataset.label;
+    if (checked) {
       values.push(Number(checked.value));
-      const label = row.dataset.label;
-      const text = checked.nextElementSibling.innerText.replace(/\n/g,' ').toLowerCase();
-      phrases.push(`${label}: ${text}`);
+      phrases.push(`${stage}—${labelForValue(checked.value)}`);
     }
   });
 
-  if(values.length === rows.length){
-    const avg = values.reduce((a,b)=>a+b,0) / values.length;
-    const score = Math.round((avg/3)*100);
-    let category = score < 34 ? 'AI-led' : score < 67 ? 'Mixed' : 'Human-led';
-
-    disclosure.innerHTML = `<strong>AI Attribution Disclosure:</strong><br>
-    Content development reflected a ${category.toLowerCase()} approach (overall score: ${score}/100). 
-    ${phrases.join('; ')}.`;
+  if (values.length !== rows.length) {
+    disclosure.textContent = 'Select an option for each section to generate a disclosure sentence.';
+    return;
   }
+
+  const avg = values.reduce((a,b)=>a+b,0) / values.length;
+  const score = Math.round((avg/3)*100);
+  const category = categoryFromScore(score);
+
+  // Citation-ready disclosure paragraph
+  disclosure.innerHTML = `<strong>AI Attribution Disclosure:</strong><br>
+  Manuscript development reflected a ${category.toLowerCase()} authorship approach (overall attribution score: ${score}/100, based on a 4-point ordinal rubric). 
+  Stage-level attributions: ${phrases.join('; ')}.`;
 });
 </script>
-
 </body>
 </html>
