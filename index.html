@@ -5,8 +5,7 @@
 <title>Human + AI Attribution Scale (4-Point Ordinal)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<style>
-:root {
+<style>:root {
   --accent:#2563eb;
   --border:#e5e7eb;
   --bg:#fafafa;
@@ -142,9 +141,9 @@ h1{margin:0;font-size:clamp(22px,3vw,34px)}
   </label>
 </div>
 <hr style="margin:18px 0">
-<div class="topic">Statistical analysis</div>
+<div class="topic">Statistical Analysis</div>
 <p class="desc">Selection, execution, and reporting of statistical tests/models, assumptions, and analytic decisions.</p>
-<div class="radio-row" data-label="Statistical analysis">
+<div class="radio-row" data-label="Statistical Analysis">
   <input type="radio" name="stats" id="stats-0" value="0">
   <label for="stats-0" title="AI generated analysis plan/code description used verbatim. Example: AI wrote analysis section with no edits.">
     <h3>AI Created</h3><p>No changes made</p>
@@ -214,9 +213,9 @@ h1{margin:0;font-size:clamp(22px,3vw,34px)}
   </label>
 </div>
 <hr style="margin:18px 0">
-<div class="topic">Writing and editing</div>
+<div class="topic">Writing and Editing</div>
 <p class="desc">Drafting, revising, and polishing manuscript text for clarity, style, structure, and consistency.</p>
-<div class="radio-row" data-label="Writing and editing">
+<div class="radio-row" data-label="Writing and Editing">
   <input type="radio" name="writing" id="writing-0" value="0">
   <label for="writing-0" title="AI generated prose edits applied verbatim. Example: AI rewrote paragraphs and changes were accepted as-is.">
     <h3>AI Created</h3><p>No changes made</p>
@@ -289,7 +288,7 @@ document.addEventListener('change', () => {
   // Citation-ready disclosure paragraph
   disclosure.innerHTML = `<strong>AI Attribution Disclosure:</strong><br>
   Manuscript development reflected a ${category.toLowerCase()} authorship approach (overall attribution score: ${score}/100, based on a 4-point ordinal rubric). 
-  Selections given during disclosure: (${phrases.map((p,i)=>`(${i+1}) ${p.replace('—',' : ').replace('AI Created — No changes made','AI Created with no changes').replace('AI Created — Human validated','AI Created with Human Validation').replace('Human Created — AI revised','Human Created with AI revisions').replace('Human Created — No AI input','Human Created with no AI input')}`).join('; ')})`;
+  Selections given during disclosure: ${phrases.map((p,i)=>`(${i+1}) ${p.replace('—',': ').replace('AI Created — No changes made','AI Created with no changes').replace('AI Created — Human validated','AI Created with Human Validation').replace('Human Created — AI revised','Human Created with AI revisions').replace('Human Created — No AI input','Human Created with no AI input')}`).join('; ')})`;
 });
 </script>
 </body>
